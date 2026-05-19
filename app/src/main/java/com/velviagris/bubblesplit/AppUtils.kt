@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.drawable.toBitmap
 import android.os.Process
+import androidx.core.content.edit
 
 // app data model
 data class AppItem(
@@ -25,6 +26,7 @@ object AppUtils {
     private const val PREFS_NAME = "bubble_prefs"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_TAKE_OVER_NOTIFICATIONS = "take_over_notifications"
+    private const val KEY_BUBBLE_SNOOZE_UNTIL = "bubble_snooze_until"
 
     // Timeliness-based bubble status management 基于时效性的气泡状态管理
     private var pendingTargetPkg: String? = null
@@ -193,6 +195,25 @@ object AppUtils {
     // 保存“是否接管通知”状态
     fun setTakeOverNotifications(context: Context, takeOver: Boolean) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putBoolean(KEY_TAKE_OVER_NOTIFICATIONS, takeOver).apply()
+        prefs.edit { putBoolean(KEY_TAKE_OVER_NOTIFICATIONS, takeOver) }
+    }
+
+    fun snoozeBubbles(context: Context, durationMs: Long) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit {
+            putLong(KEY_BUBBLE_SNOOZE_UNTIL, System.currentTimeMillis() + durationMs)
+        }
+    }
+
+    fun isBubbleSnoozed(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val snoozeUntil = prefs.getLong(KEY_BUBBLE_SNOOZE_UNTIL, 0L)
+        val isSnoozed = snoozeUntil > System.currentTimeMillis()
+
+        if (!isSnoozed && snoozeUntil != 0L) {
+            prefs.edit { remove(KEY_BUBBLE_SNOOZE_UNTIL) }
+        }
+
+        return isSnoozed
     }
 }

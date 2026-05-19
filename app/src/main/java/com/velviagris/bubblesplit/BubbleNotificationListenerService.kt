@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
 import android.service.notification.NotificationListenerService
+import android.service.notification.NotificationListenerService.RankingMap
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -25,6 +26,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         // 只需记录对话时间，无需任何复杂的拦截屏蔽
         private var lastMessageTime = 0L
         private const val COOLDOWN_TIME_MS = 10 * 60 * 1000L // 10分钟
+        private const val MAIN_BUBBLE_NOTIFICATION_ID = 1001
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -57,6 +59,10 @@ class BubbleNotificationListenerService : NotificationListenerService() {
 
                 // 核心：接管原通知（秒杀系统的原生通知）
                 val isTakeOver = AppUtils.isTakeOverNotifications(this@BubbleNotificationListenerService)
+                if (isTakeOver && AppUtils.isBubbleSnoozed(this@BubbleNotificationListenerService)) {
+                    return@launch
+                }
+
                 if (isTakeOver) {
                     cancelNotification(sbn.key)
                 }
@@ -81,6 +87,26 @@ class BubbleNotificationListenerService : NotificationListenerService() {
 
                 updateMainBubble(pkg, appName, title, text, originalContentIntent, isUpdate)
             }
+        }
+    }
+
+    override fun onNotificationRemoved(
+        sbn: StatusBarNotification,
+        rankingMap: RankingMap,
+        reason: Int
+    ) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+
+        if (sbn.packageName != packageName || sbn.id != MAIN_BUBBLE_NOTIFICATION_ID) {
+            return
+        }
+
+        val isUserDismissal = reason == REASON_CANCEL ||
+                reason == REASON_CANCEL_ALL ||
+                reason == REASON_USER_STOPPED
+
+        if (isUserDismissal) {
+            AppUtils.snoozeBubbles(this, COOLDOWN_TIME_MS)
         }
     }
 
@@ -160,7 +186,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             .setAutoCancel(true)        // 点击通知主体后，自动清除通知卡片
 
         try {
-            NotificationManagerCompat.from(this).notify(1001, builder.build())
+            NotificationManagerCompat.from(this).notify(MAIN_BUBBLE_NOTIFICATION_ID, builder.build())
         } catch (e: SecurityException) {
             e.printStackTrace()
         }
