@@ -24,8 +24,9 @@
     <string name="selector_back">&#x8FD4;&#x56DE;</string>
 
     <string name="about_title">&#x5173;&#x4E8E;</string>
-    <string name="about_version">1.0.0</string>
-    <string name="about_developer">&#x5F00;&#x53D1;&#x8005;&#xFF1A;Grace Chan</string>
+    <string name="about_version_format">&#x7248;&#x672C; %1$s</string>
+    <string name="about_developer_label">&#x5F00;&#x53D1;&#x8005;</string>
+    <string name="about_developer_name">Grace Chan</string>
     <string name="about_project_url">&#x9879;&#x76EE;&#x5730;&#x5740;&#xFF1A;</string>
 
     <string name="notif_channel_name">Bubble Notifications</string>

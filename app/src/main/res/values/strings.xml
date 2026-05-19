@@ -22,8 +22,9 @@
     <string name="selector_back">Back</string>
 
     <string name="about_title">About</string>
-    <string name="about_version">1.0.0</string>
-    <string name="about_developer">Developer: Grace Chan</string>
+    <string name="about_version_format">Version %1$s</string>
+    <string name="about_developer_label">Developer</string>
+    <string name="about_developer_name">Grace Chan</string>
     <string name="about_project_url">Project URL:</string>
 
     <string name="notif_channel_name">Bubble Notifications</string>
