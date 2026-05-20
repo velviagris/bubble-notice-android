@@ -20,8 +20,6 @@ object AppUtils {
     private const val PREFS_NAME = "bubble_prefs"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_TAKE_OVER_NOTIFICATIONS = "take_over_notifications"
-    private const val KEY_BUBBLE_SNOOZE_UNTIL = "bubble_snooze_until"
-    private const val KEY_BUBBLE_SNOOZE_ENABLED = "bubble_snooze_enabled"
 
     // 临时拉起目标状态 / Time-limited auto-launch target state.
     private var pendingTargetPkg: String? = null
@@ -178,32 +176,4 @@ object AppUtils {
         prefs.edit { putBoolean(KEY_TAKE_OVER_NOTIFICATIONS, takeOver) }
     }
 
-    fun isBubbleSnoozeEnabled(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_BUBBLE_SNOOZE_ENABLED, true)
-    }
-
-    fun setBubbleSnoozeEnabled(context: Context, enabled: Boolean) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit { putBoolean(KEY_BUBBLE_SNOOZE_ENABLED, enabled) }
-    }
-
-    fun snoozeBubbles(context: Context, durationMs: Long) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit {
-            putLong(KEY_BUBBLE_SNOOZE_UNTIL, System.currentTimeMillis() + durationMs)
-        }
-    }
-
-    fun isBubbleSnoozed(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val snoozeUntil = prefs.getLong(KEY_BUBBLE_SNOOZE_UNTIL, 0L)
-        val isSnoozed = snoozeUntil > System.currentTimeMillis()
-
-        if (!isSnoozed && snoozeUntil != 0L) {
-            prefs.edit { remove(KEY_BUBBLE_SNOOZE_UNTIL) }
-        }
-
-        return isSnoozed
-    }
 }

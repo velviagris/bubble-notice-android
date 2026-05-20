@@ -27,9 +27,6 @@ import kotlinx.coroutines.cancel
 class BubbleNotificationListenerService : NotificationListenerService() {
 
     companion object {
-        // 记录最近一次气泡通知时间 / Track the latest bubble notification time.
-        private var lastMessageTime = 0L
-        private const val COOLDOWN_TIME_MS = 10 * 60 * 1000L // 10分钟 / 10 minutes.
         private const val MAIN_BUBBLE_NOTIFICATION_ID = 1001
 
         // 用于判断是否为新消息的追踪变量 / Track variables to determine if it is a new message.
@@ -94,24 +91,13 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 }
 
                 val isTakeOver = AppUtils.isTakeOverNotifications(this@BubbleNotificationListenerService)
-                val isBubbleSnoozeEnabled = AppUtils.isBubbleSnoozeEnabled(this@BubbleNotificationListenerService)
-
-                // 判断是否处于气泡勿扰状态 / Check if bubble is snoozed.
-                val isSnoozed = isBubbleSnoozeEnabled && AppUtils.isBubbleSnoozed(this@BubbleNotificationListenerService)
-
-                if (isSnoozed) {
-                    // 处于勿扰状态下，直接返回不接管，即系统原样展示通知 / In snooze state, return without taking over (system displays original).
-                    return@launch
-                }
 
                 if (isTakeOver) {
                     cancelNotification(sbn.key)
                 }
 
                 AppUtils.setAutoLaunchTarget(pkg, 10000L)
-                lastMessageTime = System.currentTimeMillis()
 
-                // 非勿扰路径继续发布 BubbleSplit 通知 / Outside snooze, keep publishing the BubbleSplit notification.
                 val originalContentIntent = notification.contentIntent
 
                 updateMainBubble(pkg, appName, title, text, originalContentIntent, isUpdate = !isNewMessage, isTakeOver = isTakeOver)
@@ -136,9 +122,6 @@ class BubbleNotificationListenerService : NotificationListenerService() {
 
         if (isUserDismissal) {
             isBubbleDismissed = true
-            if (AppUtils.isBubbleSnoozeEnabled(this)) {
-                AppUtils.snoozeBubbles(this, COOLDOWN_TIME_MS)
-            }
         }
     }
 

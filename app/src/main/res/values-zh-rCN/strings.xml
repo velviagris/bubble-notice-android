@@ -41,8 +41,6 @@
 
     <string name="setting_take_over_title">&#x63A5;&#x7BA1;&#x5E94;&#x7528;&#x901A;&#x77E5;</string>
     <string name="setting_take_over_desc">&#x5F00;&#x542F;&#x540E;&#x5C06;&#x539F;&#x901A;&#x77E5;&#x66FF;&#x6362;&#x4E3A;&#x6C14;&#x6CE1;&#xFF0C;&#x5173;&#x95ED;&#x5219;&#x4E24;&#x8005;&#x540C;&#x65F6;&#x663E;&#x793A;</string>
-    <string name="setting_bubble_snooze_title">&#x5F00;&#x542F;&#x6C14;&#x6CE1;&#x52FF;&#x6270;</string>
-    <string name="setting_bubble_snooze_desc">&#x6C14;&#x6CE1;&#x79FB;&#x9664;&#x540E;&#xFF0C;10min&#x5185;&#x4E0D;&#x4F1A;&#x518D;&#x5F39;&#x51FA; (&#x82E5;&#x5F00;&#x542F;&#x63A5;&#x7BA1;&#x5E94;&#x7528;&#x901A;&#x77E5;&#xFF0C;&#x6B64;&#x65F6;&#x4F1A;&#x663E;&#x793A;&#x539F;&#x901A;&#x77E5;)</string>
 
     <string name="shortcut_show_bubble">&#x663E;&#x793A;&#x6C14;&#x6CE1;</string>
 </resources>

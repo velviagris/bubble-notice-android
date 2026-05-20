@@ -36,7 +36,6 @@ fun SettingsScreen(onNavigateToSelector: () -> Unit, onSendNotification: () -> U
     var hasListenerPermission by remember { mutableStateOf(false) }
     var hasUsagePermission by remember { mutableStateOf(false) }
     var isTakeOver by remember { mutableStateOf(false) }
-    var isBubbleSnoozeEnabled by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -51,7 +50,6 @@ fun SettingsScreen(onNavigateToSelector: () -> Unit, onSendNotification: () -> U
                     hasListenerPermission = enabledListeners.contains(context.packageName)
                     hasUsagePermission = AppUtils.hasUsageStatsPermission(context)
                     isTakeOver = AppUtils.isTakeOverNotifications(context)
-                    isBubbleSnoozeEnabled = AppUtils.isBubbleSnoozeEnabled(context)
                 }
             }
             lifecycleOwner.lifecycle.addObserver(observer)
@@ -123,16 +121,6 @@ fun SettingsScreen(onNavigateToSelector: () -> Unit, onSendNotification: () -> U
             onCheckedChange = {
                 isTakeOver = it
                 AppUtils.setTakeOverNotifications(context, it)
-            }
-        )
-
-        SettingSwitchCard(
-            title = stringResource(R.string.setting_bubble_snooze_title),
-            subtitle = stringResource(R.string.setting_bubble_snooze_desc),
-            checked = isBubbleSnoozeEnabled,
-            onCheckedChange = {
-                isBubbleSnoozeEnabled = it
-                AppUtils.setBubbleSnoozeEnabled(context, it)
             }
         )
 
