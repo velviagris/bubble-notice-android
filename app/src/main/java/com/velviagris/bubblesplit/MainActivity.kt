@@ -116,16 +116,28 @@ class MainActivity : ComponentActivity() {
     private fun createNotificationChannel() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.deleteNotificationChannel("bubble_popup_channel")
-        val channel = NotificationChannel(
-            AppUtils.BUBBLE_CHANNEL_ID,
-            getString(R.string.notif_channel_name),
+
+        // 1. Silent Channel
+        val silentChannel = NotificationChannel(
+            AppUtils.BUBBLE_CHANNEL_SILENT_ID,
+            getString(R.string.notif_channel_name_silent),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             setAllowBubbles(true)
             setSound(null, null)
             enableVibration(false)
         }
-        nm.createNotificationChannel(channel)
+        nm.createNotificationChannel(silentChannel)
+
+        // 2. Alert Channel
+        val alertChannel = NotificationChannel(
+            AppUtils.BUBBLE_CHANNEL_ALERT_ID,
+            getString(R.string.notif_channel_name_alert),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            setAllowBubbles(true)
+        }
+        nm.createNotificationChannel(alertChannel)
     }
 
     private fun sendBubbleNotification() {
@@ -166,7 +178,7 @@ class MainActivity : ComponentActivity() {
         val style = NotificationCompat.MessagingStyle(chatPartner)
             .addMessage(getString(R.string.notif_main_msg), System.currentTimeMillis(), chatPartner)
 
-        val builder = NotificationCompat.Builder(this, AppUtils.BUBBLE_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, AppUtils.BUBBLE_CHANNEL_ALERT_ID)
             .setContentIntent(contentIntent)
             .setSmallIcon(R.drawable.ic_notification)
             .setStyle(style)

@@ -14,8 +14,9 @@ import androidx.core.content.edit
 import com.velviagris.bubblesplit.model.AppItem
 
 object AppUtils {
-    // 全局静音气泡通道 ID / Globally unique silent bubble channel ID.
-    const val BUBBLE_CHANNEL_ID = "bubble_popup_silent_v1"
+    const val BUBBLE_CHANNEL_SILENT_ID = "bubble_popup_silent_v1"
+    const val BUBBLE_CHANNEL_ALERT_ID = "bubble_popup_alert_v1"
+    const val BUBBLE_CHANNEL_ID = BUBBLE_CHANNEL_SILENT_ID
     private const val PREFS_NAME = "bubble_prefs"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_TAKE_OVER_NOTIFICATIONS = "take_over_notifications"

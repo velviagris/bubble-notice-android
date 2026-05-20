@@ -31,6 +31,13 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         private var lastMessageTime = 0L
         private const val COOLDOWN_TIME_MS = 10 * 60 * 1000L // 10分钟 / 10 minutes.
         private const val MAIN_BUBBLE_NOTIFICATION_ID = 1001
+
+        // 用于判断是否为新消息的追踪变量 / Track variables to determine if it is a new message.
+        private var lastMessagePkg: String? = null
+        private var lastMessageTitle: String? = null
+        private var lastMessageText: String? = null
+        private var lastEventTime: Long = 0L
+        private var isBubbleDismissed = false
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -61,15 +68,39 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                     return@launch
                 }
 
-                val currentTime = System.currentTimeMillis()
-                val isFreshStart = (currentTime - lastMessageTime) > COOLDOWN_TIME_MS
-                val isUpdate = !isFreshStart
+                val appName = AppUtils.getAppName(this@BubbleNotificationListenerService, pkg)
+                val extras = notification.extras
+                val title = extras.getString(Notification.EXTRA_TITLE) ?: appName
+                val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
 
-                // 接管原通知前先判断勿扰状态 / Check snooze before taking over the original notification.
+                // 提取通知时间戳进行比对 / Extract timestamp for comparison.
+                val msgTime = if (notification.`when` != 0L) notification.`when` else sbn.postTime
+
+                // 判断是否为新消息 / Check if it is a new message.
+                val isNewMessage = pkg != lastMessagePkg || title != lastMessageTitle || text != lastMessageText || msgTime != lastEventTime
+
+                // 如果用户已经手动移除了当前气泡，且没有新消息，则不重新显示气泡 / If user dismissed the bubble and no new message, do not show again.
+                if (isBubbleDismissed && !isNewMessage) {
+                    return@launch
+                }
+
+                // 如果是新消息，重置气泡手动移除状态并更新追踪 / If it is a new message, reset dismissal status and update tracking.
+                if (isNewMessage) {
+                    lastMessagePkg = pkg
+                    lastMessageTitle = title
+                    lastMessageText = text
+                    lastEventTime = msgTime
+                    isBubbleDismissed = false
+                }
+
                 val isTakeOver = AppUtils.isTakeOverNotifications(this@BubbleNotificationListenerService)
                 val isBubbleSnoozeEnabled = AppUtils.isBubbleSnoozeEnabled(this@BubbleNotificationListenerService)
-                if (isTakeOver && isBubbleSnoozeEnabled && (isUpdate || AppUtils.isBubbleSnoozed(this@BubbleNotificationListenerService))) {
-                    lastMessageTime = currentTime
+
+                // 判断是否处于气泡勿扰状态 / Check if bubble is snoozed.
+                val isSnoozed = isBubbleSnoozeEnabled && AppUtils.isBubbleSnoozed(this@BubbleNotificationListenerService)
+
+                if (isSnoozed) {
+                    // 处于勿扰状态下，直接返回不接管，即系统原样展示通知 / In snooze state, return without taking over (system displays original).
                     return@launch
                 }
 
@@ -78,19 +109,12 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 }
 
                 AppUtils.setAutoLaunchTarget(pkg, 10000L)
-                lastMessageTime = currentTime
+                lastMessageTime = System.currentTimeMillis()
 
                 // 非勿扰路径继续发布 BubbleSplit 通知 / Outside snooze, keep publishing the BubbleSplit notification.
-
-                val appName = AppUtils.getAppName(this@BubbleNotificationListenerService, pkg)
-                val extras = notification.extras
-                val title = extras.getString(Notification.EXTRA_TITLE) ?: appName
-                val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
-
-                // 提取原应用跳转意图 / Reuse the source app content intent when available.
                 val originalContentIntent = notification.contentIntent
 
-                updateMainBubble(pkg, appName, title, text, originalContentIntent, isUpdate)
+                updateMainBubble(pkg, appName, title, text, originalContentIntent, isUpdate = !isNewMessage, isTakeOver = isTakeOver)
             }
         }
     }
@@ -110,8 +134,11 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 reason == REASON_CANCEL_ALL ||
                 reason == REASON_USER_STOPPED
 
-        if (isUserDismissal && AppUtils.isBubbleSnoozeEnabled(this)) {
-            AppUtils.snoozeBubbles(this, COOLDOWN_TIME_MS)
+        if (isUserDismissal) {
+            isBubbleDismissed = true
+            if (AppUtils.isBubbleSnoozeEnabled(this)) {
+                AppUtils.snoozeBubbles(this, COOLDOWN_TIME_MS)
+            }
         }
     }
 
@@ -121,9 +148,14 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         title: String,
         text: String,
         originalContentIntent: PendingIntent?,
-        isUpdate: Boolean
+        isUpdate: Boolean,
+        isTakeOver: Boolean
     ) {
-        val channelId = AppUtils.BUBBLE_CHANNEL_ID
+        val channelId = if (isTakeOver && !isUpdate) {
+            AppUtils.BUBBLE_CHANNEL_ALERT_ID
+        } else {
+            AppUtils.BUBBLE_CHANNEL_SILENT_ID
+        }
         val shortcutId = "bubble_split_shortcut"
 
         val appIconDrawable = try {
