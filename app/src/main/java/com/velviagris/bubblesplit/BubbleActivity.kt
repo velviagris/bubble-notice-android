@@ -358,8 +358,15 @@ class BubbleActivity : ComponentActivity() {
     }
 
     private fun launchFreeformDirectly(targetPackage: String) {
-        val widthRatio = AppUtils.getFreeformWidthRatio(this)
-        val heightRatio = AppUtils.getFreeformHeightRatio(this)
+        var widthRatio = AppUtils.getFreeformWidthRatio(this)
+        var heightRatio = AppUtils.getFreeformHeightRatio(this)
+
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val temp = widthRatio
+            widthRatio = heightRatio
+            heightRatio = temp
+        }
+
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
