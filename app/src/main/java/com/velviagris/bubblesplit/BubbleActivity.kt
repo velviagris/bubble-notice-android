@@ -40,7 +40,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Launch
+import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,6 +48,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.font.FontWeight
 import com.velviagris.bubblesplit.util.UnreadMessageManager
 import com.velviagris.bubblesplit.util.ShizukuUtils
+import com.velviagris.bubblesplit.ui.theme.BubbleSplitTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.Apps
 
 data class SenderGroup(
     val packageName: String,
@@ -63,10 +67,10 @@ class BubbleActivity : ComponentActivity() {
         handleIntent(intent)
 
         setContent {
-            MaterialTheme {
+            BubbleSplitTheme(dynamicColor = true) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surface
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     val config = LocalConfiguration.current
                     val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -80,19 +84,46 @@ class BubbleActivity : ComponentActivity() {
                     Column(modifier = Modifier.fillMaxSize()) {
                         // 仅当有未读消息时才显示选项卡 / Show tabs only when there are unread messages.
                         if (messages.isNotEmpty()) {
-                            TabRow(
+                            SecondaryTabRow(
                                 selectedTabIndex = activeTab,
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                indicator = {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier.tabIndicatorOffset(activeTab),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        height = 3.dp
+                                    )
+                                },
+                                divider = {
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                }
                             ) {
                                 Tab(
                                     selected = activeTab == 0,
                                     onClick = { selectedTab = 0 },
-                                    text = { Text("未读消息 (${messages.size})") }
+                                    text = {
+                                        Text(
+                                            text = "未读消息 (${messages.size})",
+                                            fontWeight = if (activeTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colorScheme.primary,
+                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Tab(
                                     selected = activeTab == 1,
                                     onClick = { selectedTab = 1 },
-                                    text = { Text("快捷启动") }
+                                    text = {
+                                        Text(
+                                            text = "快捷启动",
+                                            fontWeight = if (activeTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colorScheme.primary,
+                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -181,35 +212,45 @@ class BubbleActivity : ComponentActivity() {
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.06f),
+                            MaterialTheme.colorScheme.background
                         )
                     )
                 )
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             // 顶部操作栏 / Top bar
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
             ) {
                 Text(
                     text = "未读消息清单",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 TextButton(
-                    onClick = { UnreadMessageManager.clearAll() }
+                    onClick = { UnreadMessageManager.clearAll() },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        contentDescription = "Clear All",
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "全部清除")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "全部清除",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
@@ -221,15 +262,15 @@ class BubbleActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(grouped) { group ->
-                    Card(
+                    OutlinedCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                        ),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.outlinedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        )
                     ) {
                         Column(
-                            modifier = Modifier.padding(12.dp)
+                            modifier = Modifier.padding(14.dp)
                         ) {
                             // 发送人头部信息 / Sender details header
                             Row(
@@ -247,9 +288,11 @@ class BubbleActivity : ComponentActivity() {
                                     Image(
                                         bitmap = appIcon,
                                         contentDescription = null,
-                                        modifier = Modifier.size(36.dp)
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .clip(RoundedCornerShape(10.dp))
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                 }
 
                                 Column(modifier = Modifier.weight(1f)) {
@@ -265,7 +308,8 @@ class BubbleActivity : ComponentActivity() {
                                     Text(
                                         text = appName,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
 
@@ -286,54 +330,55 @@ class BubbleActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 // 分屏回复 / Split Reply
-                                Button(
+                                FilledTonalButton(
                                     onClick = {
                                         onSplitReply(group.packageName)
                                         UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
                                     },
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.height(34.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Launch,
+                                        imageVector = Icons.AutoMirrored.Filled.Launch,
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = if (launchMode == "freeform") "小窗" else "分屏",
-                                        style = MaterialTheme.typography.labelMedium
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
-                            // 该发送人期间的所有未读消息内容卡片 / Message content box
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                            // 该发送人期间的所有未读消息内容卡片 / Message content box -> Message Bubbles
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp)
-                                ) {
-                                    group.messages.forEachIndexed { index, msg ->
+                                group.messages.forEach { msg ->
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                                shape = RoundedCornerShape(
+                                                    topStart = 4.dp,
+                                                    topEnd = 16.dp,
+                                                    bottomEnd = 16.dp,
+                                                    bottomStart = 16.dp
+                                                )
+                                            )
+                                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                                    ) {
                                         Text(
                                             text = msg.messageText,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                        if (index < group.messages.size - 1) {
-                                            Spacer(modifier = Modifier.height(6.dp))
-                                            HorizontalDivider(
-                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                                                thickness = 0.5.dp
-                                            )
-                                            Spacer(modifier = Modifier.height(6.dp))
-                                        }
                                     }
                                 }
                             }
@@ -428,28 +473,47 @@ class BubbleActivity : ComponentActivity() {
                 CircularProgressIndicator()
             }
         } else if (filteredAppList.isEmpty()) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(32.dp),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                Icon(
+                    imageVector = Icons.Outlined.Apps,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "暂无快捷启动应用",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = stringResource(R.string.bubble_empty_state),
                     textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 80.dp),
+                columns = GridCells.Adaptive(minSize = 90.dp),
                 contentPadding = PaddingValues(16.dp),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredAppList) { app ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
                             .clickable {
                                 val launchMode = AppUtils.getLaunchMode(context)
                                 if (launchMode == "freeform" && ShizukuUtils.isShizukuAvailable() && ShizukuUtils.isShizukuPermissionGranted()) {
@@ -458,17 +522,31 @@ class BubbleActivity : ComponentActivity() {
                                     launchAppInHalfScreen(app.packageName, isLandscape)
                                 }
                             }
-                            .padding(8.dp)
+                            .padding(12.dp)
                     ) {
-                        Image(
-                            bitmap = app.icon.toBitmap(120, 120).asImageBitmap(),
-                            contentDescription = app.name,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            tonalElevation = 1.dp,
+                            modifier = Modifier.size(56.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Image(
+                                    bitmap = app.icon.toBitmap(120, 120).asImageBitmap(),
+                                    contentDescription = app.name,
+                                    modifier = Modifier.size(42.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = app.name,
                             style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
