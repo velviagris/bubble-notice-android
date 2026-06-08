@@ -20,6 +20,41 @@ object AppUtils {
     private const val PREFS_NAME = "bubble_prefs"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_TAKE_OVER_NOTIFICATIONS = "take_over_notifications"
+    private const val KEY_LAUNCH_MODE = "launch_mode"
+    private const val KEY_FREEFORM_WIDTH_RATIO = "freeform_width_ratio"
+    private const val KEY_FREEFORM_HEIGHT_RATIO = "freeform_height_ratio"
+
+    // 读取当前启动模式 / Read current launch mode (split or freeform).
+    fun getLaunchMode(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_LAUNCH_MODE, "split") ?: "split"
+    }
+
+    // 保存当前启动模式 / Save launch mode.
+    fun setLaunchMode(context: Context, mode: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_LAUNCH_MODE, mode).apply()
+    }
+
+    fun getFreeformWidthRatio(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_FREEFORM_WIDTH_RATIO, 60)
+    }
+
+    fun setFreeformWidthRatio(context: Context, ratio: Int) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt(KEY_FREEFORM_WIDTH_RATIO, ratio).apply()
+    }
+
+    fun getFreeformHeightRatio(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_FREEFORM_HEIGHT_RATIO, 60)
+    }
+
+    fun setFreeformHeightRatio(context: Context, ratio: Int) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt(KEY_FREEFORM_HEIGHT_RATIO, ratio).apply()
+    }
 
     // 临时拉起目标状态 / Time-limited auto-launch target state.
     private var pendingTargetPkg: String? = null

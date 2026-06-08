@@ -33,23 +33,30 @@ import androidx.lifecycle.lifecycleScope
 import com.velviagris.bubblesplit.model.AppItem
 import com.velviagris.bubblesplit.util.AppUtils
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.animation.Crossfade
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Launch
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.text.font.FontWeight
+import com.velviagris.bubblesplit.util.UnreadMessageManager
+import com.velviagris.bubblesplit.util.ShizukuUtils
 
-data class ActiveMessage(
+data class SenderGroup(
     val packageName: String,
     val senderName: String,
-    val messageText: String
+    val messages: List<UnreadMessageManager.Message>,
+    val latestTimestamp: Long
 )
 
 class BubbleActivity : ComponentActivity() {
-
-    // 追踪当前活跃的消息内容 / Track current active message details.
-    private var activeMessage by mutableStateOf<ActiveMessage?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,17 +71,48 @@ class BubbleActivity : ComponentActivity() {
                     val config = LocalConfiguration.current
                     val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-                    // 带动画切换微型消息面板和应用选择列表 / Animate transitions between panel and selector.
-                    Crossfade(targetState = activeMessage, label = "BubbleContentTransition") { msg ->
-                        if (msg != null) {
-                            MicroMessagePanel(
-                                activeMsg = msg,
-                                isLandscape = isLandscape,
-                                onSplitReply = { launchTrampoline(msg.packageName) },
-                                onBackToAppList = { activeMessage = null }
-                            )
-                        } else {
-                            AppSelectionContent(isLandscape)
+                    val messages by UnreadMessageManager.messagesFlow.collectAsState()
+                    var selectedTab by remember { mutableStateOf(0) }
+
+                    // 如果未读消息为空，则强制切换到应用列表 tab / If messages are empty, default to tab 1 (Apps).
+                    val activeTab = if (messages.isEmpty()) 1 else selectedTab
+
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // 仅当有未读消息时才显示选项卡 / Show tabs only when there are unread messages.
+                        if (messages.isNotEmpty()) {
+                            TabRow(
+                                selectedTabIndex = activeTab,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ) {
+                                Tab(
+                                    selected = activeTab == 0,
+                                    onClick = { selectedTab = 0 },
+                                    text = { Text("未读消息 (${messages.size})") }
+                                )
+                                Tab(
+                                    selected = activeTab == 1,
+                                    onClick = { selectedTab = 1 },
+                                    text = { Text("快捷启动") }
+                                )
+                            }
+                        }
+
+                        // 带动画切换面板和选择器 / Animate content switching.
+                        Crossfade(targetState = activeTab, label = "BubbleTabTransition") { tab ->
+                            when (tab) {
+                                0 -> UnreadMessagesDashboard(
+                                    isLandscape = isLandscape,
+                                    onSplitReply = { pkg ->
+                                        val launchMode = AppUtils.getLaunchMode(this@BubbleActivity)
+                                        if (launchMode == "freeform" && ShizukuUtils.isShizukuAvailable() && ShizukuUtils.isShizukuPermissionGranted()) {
+                                            launchFreeformDirectly(pkg)
+                                        } else {
+                                            launchTrampoline(pkg)
+                                        }
+                                    }
+                                )
+                                1 -> AppSelectionContent(isLandscape)
+                            }
                         }
                     }
                 }
@@ -88,37 +126,56 @@ class BubbleActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
-    // 提取 Intent 中的消息详情 / Extract message details from intent.
+    // 提取 Intent 中的消息详情并加入未读消息管理器 / Extract message details and add them to the manager.
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
         val pkg = intent.getStringExtra("EXTRA_PACKAGE_NAME")
         val title = intent.getStringExtra("EXTRA_TITLE")
         val text = intent.getStringExtra("EXTRA_TEXT")
         if (pkg != null && title != null && text != null) {
-            activeMessage = ActiveMessage(pkg, title, text)
+            UnreadMessageManager.addMessage(pkg, title, text, System.currentTimeMillis())
         }
     }
 
     @Composable
-    private fun MicroMessagePanel(
-        activeMsg: ActiveMessage,
+    private fun UnreadMessagesDashboard(
         isLandscape: Boolean,
-        onSplitReply: () -> Unit,
-        onBackToAppList: () -> Unit
+        onSplitReply: (String) -> Unit
     ) {
         val context = LocalContext.current
-        val appIcon = remember(activeMsg.packageName) {
-            try {
-                context.packageManager.getApplicationIcon(activeMsg.packageName).toBitmap(144, 144).asImageBitmap()
-            } catch (e: Exception) {
-                null
+        val messages by UnreadMessageManager.messagesFlow.collectAsState()
+
+        var launchMode by remember { mutableStateOf("split") }
+        val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    launchMode = AppUtils.getLaunchMode(context)
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
-        val appName = remember(activeMsg.packageName) {
-            AppUtils.getAppName(context, activeMsg.packageName)
+
+        val grouped = remember(messages) {
+            messages.groupBy { it.packageName to it.senderName }
+                .map { (key, msgList) ->
+                    val sortedMsgs = msgList.sortedByDescending { it.timestamp }
+                    val latestTimestamp = sortedMsgs.firstOrNull()?.timestamp ?: 0L
+                    SenderGroup(
+                        packageName = key.first,
+                        senderName = key.second,
+                        messages = sortedMsgs,
+                        latestTimestamp = latestTimestamp
+                    )
+                }
+                .sortedByDescending { it.latestTimestamp }
         }
 
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -131,115 +188,157 @@ class BubbleActivity : ComponentActivity() {
                 )
                 .padding(16.dp)
         ) {
-            // 返回应用选择列表按钮 / Back button to return to app selector.
-            IconButton(
-                onClick = onBackToAppList,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .size(40.dp)
+            // 顶部操作栏 / Top bar
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
-                    contentDescription = "Back to Apps",
-                    tint = MaterialTheme.colorScheme.primary
+                Text(
+                    text = "未读消息清单",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    // 应用图标 / App Icon
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                            .padding(12.dp)
-                    ) {
-                        if (appIcon != null) {
-                            Image(
-                                bitmap = appIcon,
-                                contentDescription = appName,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // 联系人名称 / Sender
-                    Text(
-                        text = activeMsg.senderName,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // 消息气泡卡片 / Message bubble
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
-                        ),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            text = activeMsg.messageText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(16.dp),
-                            textAlign = TextAlign.Center,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 分屏回复动作按钮 / Split screen reply action button
-                Button(
-                    onClick = onSplitReply,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
-                    )
+                TextButton(
+                    onClick = { UnreadMessageManager.clearAll() }
                 ) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Default.Launch,
+                        imageVector = Icons.Default.DeleteSweep,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "分屏回复",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "全部清除")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 未读消息列表 / Scrollable list of groups
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(grouped) { group ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        ),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            // 发送人头部信息 / Sender details header
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                val appIcon = remember(group.packageName) {
+                                    try {
+                                        context.packageManager.getApplicationIcon(group.packageName).toBitmap(96, 96).asImageBitmap()
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                }
+                                if (appIcon != null) {
+                                    Image(
+                                        bitmap = appIcon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = group.senderName,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    val appName = remember(group.packageName) {
+                                        AppUtils.getAppName(context, group.packageName)
+                                    }
+                                    Text(
+                                        text = appName,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                }
+
+                                // 移除该联系人所有未读 / Clear messages for this sender
+                                IconButton(
+                                    onClick = {
+                                        UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
+                                    },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Clear",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                // 分屏回复 / Split Reply
+                                Button(
+                                    onClick = {
+                                        onSplitReply(group.packageName)
+                                        UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Launch,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = if (launchMode == "freeform") "小窗" else "分屏",
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // 该发送人期间的所有未读消息内容卡片 / Message content box
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    group.messages.forEachIndexed { index, msg ->
+                                        Text(
+                                            text = msg.messageText,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        if (index < group.messages.size - 1) {
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            HorizontalDivider(
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                                thickness = 0.5.dp
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -252,10 +351,36 @@ class BubbleActivity : ComponentActivity() {
         }
         try {
             startActivity(intent)
-            activeMessage = null // 启动后清空状态 / Reset state after launch.
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "启动失败: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun launchFreeformDirectly(targetPackage: String) {
+        val widthRatio = AppUtils.getFreeformWidthRatio(this)
+        val heightRatio = AppUtils.getFreeformHeightRatio(this)
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        val width = (screenWidth * widthRatio / 100).coerceIn(100, screenWidth)
+        val height = (screenHeight * heightRatio / 100).coerceIn(100, screenHeight)
+        val left = (screenWidth - width) / 2
+        val top = (screenHeight - height) / 2
+        val right = left + width
+        val bottom = top + height
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val success = ShizukuUtils.launchInFreeform(this@BubbleActivity, targetPackage, left, top, right, bottom)
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    moveTaskToBack(true)
+                } else {
+                    // 失败时回退到分屏模式启动 / Fallback to TrampolineActivity if freeform launch fails
+                    launchTrampoline(targetPackage)
+                }
+            }
         }
     }
 
@@ -318,7 +443,14 @@ class BubbleActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .clickable { launchAppInHalfScreen(app.packageName, isLandscape) }
+                            .clickable {
+                                val launchMode = AppUtils.getLaunchMode(context)
+                                if (launchMode == "freeform" && ShizukuUtils.isShizukuAvailable() && ShizukuUtils.isShizukuPermissionGranted()) {
+                                    launchFreeformDirectly(app.packageName)
+                                } else {
+                                    launchAppInHalfScreen(app.packageName, isLandscape)
+                                }
+                            }
                             .padding(8.dp)
                     ) {
                         Image(

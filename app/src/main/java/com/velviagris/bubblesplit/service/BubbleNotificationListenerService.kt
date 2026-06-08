@@ -18,6 +18,7 @@ import com.velviagris.bubblesplit.BubbleActivity
 import com.velviagris.bubblesplit.MainActivity
 import com.velviagris.bubblesplit.R
 import com.velviagris.bubblesplit.util.AppUtils
+import com.velviagris.bubblesplit.util.UnreadMessageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -88,6 +89,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                     lastMessageText = text
                     lastEventTime = msgTime
                     isBubbleDismissed = false
+                    UnreadMessageManager.addMessage(pkg, title, text, msgTime)
                 }
 
                 val isTakeOver = AppUtils.isTakeOverNotifications(this@BubbleNotificationListenerService)
