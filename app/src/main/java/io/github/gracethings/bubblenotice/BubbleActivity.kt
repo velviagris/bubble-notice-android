@@ -132,7 +132,7 @@ class BubbleActivity : ComponentActivity() {
                                     onClick = { selectedTab = 0 },
                                     text = {
                                         Text(
-                                            text = "未读消息 (${messages.size})",
+                                            text = stringResource(R.string.tab_unread_messages, messages.size),
                                             fontWeight = if (activeTab == 0) FontWeight.Bold else FontWeight.Normal,
                                             style = MaterialTheme.typography.titleSmall
                                         )
@@ -145,7 +145,7 @@ class BubbleActivity : ComponentActivity() {
                                     onClick = { selectedTab = 1 },
                                     text = {
                                         Text(
-                                            text = "快捷启动",
+                                            text = stringResource(R.string.tab_quick_launch),
                                             fontWeight = if (activeTab == 1) FontWeight.Bold else FontWeight.Normal,
                                             style = MaterialTheme.typography.titleSmall
                                         )
@@ -232,7 +232,7 @@ class BubbleActivity : ComponentActivity() {
                     .padding(vertical = 4.dp)
             ) {
                 Text(
-                    text = "未读消息清单",
+                    text = stringResource(R.string.title_unread_messages),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -250,7 +250,7 @@ class BubbleActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "全部清除",
+                        text = stringResource(R.string.btn_clear_all),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -430,7 +430,7 @@ class BubbleActivity : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "暂无快捷启动应用",
+                    text = stringResource(R.string.empty_quick_launch),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface

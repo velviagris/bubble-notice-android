@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bubble Notice</string>
+    <string name="tab_settings">設定</string>
+    <string name="tab_about">關於</string>
+    <string name="setting_permission_title">授權讀取應用通知</string>
+    <string name="setting_permission_granted">已授權，將自動生成氣泡</string>
+    <string name="setting_permission_denied">未授權，點擊開啟權限</string>
+    <string name="setting_bubble_title">開啟主控台氣泡</string>
+    <string name="setting_bubble_desc">發送常駐通知，隨時呼出氣泡</string>
+    <string name="setting_auto_jump_title">點擊氣泡通知自動跳轉</string>
+    <string name="setting_auto_jump_desc">開啟後，點擊氣泡通知會直接跳轉到對應應用，不顯示氣泡面板。</string>
+    <string name="setting_apps_title">常用應用管理</string>
+    <string name="setting_apps_count">已選擇 %1$d 個快捷應用</string>
+    <string name="setting_apps_empty">未選擇任何應用，點擊添加</string>
+    <string name="selector_title">訂閱應用</string>
+    <string name="selector_done">完成</string>
+    <string name="selector_back">返回</string>
+    <string name="about_title">關於</string>
+    <string name="about_version_format">版本 %1$s</string>
+    <string name="about_developer_label">開發者</string>
+    <string name="about_developer_name">Grace Chan</string>
+    <string name="about_project_url">專案地址：</string>
+    <string name="notif_channel_name">Bubble Notifications</string>
+    <string name="notif_channel_name_silent">氣泡通知 (靜音)</string>
+    <string name="notif_channel_name_alert">氣泡通知 (有聲)</string>
+    <string name="notification_listener_label">BubbleNotice 通知監聽</string>
+    <string name="notif_partner_name">應用中心</string>
+    <string name="notif_main_msg">點擊右下角的小氣泡圖示，呼出控制台！</string>
+    <string name="notif_dynamic_msg">點擊打開</string>
+    <string name="bubble_empty_state">尚未選擇應用。\n請在主應用設定中添加。</string>
+    <string name="toast_cannot_split">該應用已在全螢幕運行，無法分螢幕拉起</string>
+    <string name="setting_take_over_title">接管應用通知</string>
+    <string name="setting_take_over_desc">開啟後將原通知替換為氣泡，關閉則兩者同時顯示</string>
+    <string name="shortcut_show_bubble">顯示氣泡</string>
+    <string name="tab_unread_messages">未讀訊息 (%1$d)</string>
+    <string name="tab_quick_launch">快捷啟動</string>
+    <string name="title_unread_messages">未讀訊息清單</string>
+    <string name="btn_clear_all">全部清除</string>
+    <string name="empty_quick_launch">暫無快捷啟動應用</string>
+    <string name="action_open_app">打開應用</string>
+</resources>

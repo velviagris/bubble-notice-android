@@ -196,7 +196,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         )
 
         val openAppAction = NotificationCompat.Action.Builder(
-            0, "打开应用", finalContentIntent
+            0, getString(R.string.action_open_app), finalContentIntent
         ).build()
 
         val builder = NotificationCompat.Builder(this, channelId)

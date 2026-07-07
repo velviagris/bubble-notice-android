@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bubble Notice</string>
+    <string name="tab_settings">設定</string>
+    <string name="tab_about">概要</string>
+    <string name="setting_permission_title">通知アクセスの許可</string>
+    <string name="setting_permission_granted">許可済み。バブルが自動生成されます。</string>
+    <string name="setting_permission_denied">未許可。タップして権限を付与してください。</string>
+    <string name="setting_bubble_title">コンソールバブルを有効にする</string>
+    <string name="setting_bubble_desc">常駐通知を送信し、いつでもバブルを呼び出せます。</string>
+    <string name="setting_auto_jump_title">バブル通知クリックで自動ジャンプ</string>
+    <string name="setting_auto_jump_desc">有効にすると、バブル通知をタップした際にバブルパネルを表示せず、直接アプリにジャンプします。</string>
+    <string name="setting_apps_title">お気に入りアプリの管理</string>
+    <string name="setting_apps_count">%1$d 個のアプリが選択されています</string>
+    <string name="setting_apps_empty">アプリが選択されていません。タップして追加。</string>
+    <string name="selector_title">アプリのサブスクライブ</string>
+    <string name="selector_done">完了</string>
+    <string name="selector_back">戻る</string>
+    <string name="about_title">概要</string>
+    <string name="about_version_format">バージョン %1$s</string>
+    <string name="about_developer_label">開発者</string>
+    <string name="about_developer_name">Grace Chan</string>
+    <string name="about_project_url">プロジェクトURL：</string>
+    <string name="notif_channel_name">バブル通知</string>
+    <string name="notif_channel_name_silent">バブル通知 (サイレント)</string>
+    <string name="notif_channel_name_alert">バブル通知 (アラート)</string>
+    <string name="notification_listener_label">BubbleNotice 通知リスナー</string>
+    <string name="notif_partner_name">アプリセンター</string>
+    <string name="notif_main_msg">バブルアイコンをタップしてコンソールを開きます！</string>
+    <string name="notif_dynamic_msg">タップして開く</string>
+    <string name="bubble_empty_state">アプリが選択されていません。\nメインアプリの設定から追加してください。</string>
+    <string name="toast_cannot_split">全画面で実行中のため分割できません。</string>
+    <string name="setting_take_over_title">通知の引き継ぎ</string>
+    <string name="setting_take_over_desc">有効にすると元の通知をバブルに置き換えます。無効にすると両方表示されます。</string>
+    <string name="shortcut_show_bubble">バブルを表示</string>
+    <string name="tab_unread_messages">未読メッセージ (%1$d)</string>
+    <string name="tab_quick_launch">クイック起動</string>
+    <string name="title_unread_messages">未読メッセージリスト</string>
+    <string name="btn_clear_all">全て消去</string>
+    <string name="empty_quick_launch">クイック起動アプリはありません</string>
+    <string name="action_open_app">アプリを開く</string>
+</resources>
