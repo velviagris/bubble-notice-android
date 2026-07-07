@@ -217,6 +217,16 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             .setAutoCancel(true)        // 点击后清除通知 / Clear after tapping the notification.
             .addAction(openAppAction)   // 提供明确的打开应用按钮 / Provide explicit button to bypass bubble expansion.
 
+        val isDndMode = AppUtils.isBubbleDndModeEnabled(this)
+        if (!isDndMode && !isUpdate) {
+            // 如果未开启免打扰，且是新消息，则先取消旧通知以强制触发横幅弹出 / Force heads-up by canceling the old notification
+            try {
+                NotificationManagerCompat.from(this).cancel(MAIN_BUBBLE_NOTIFICATION_ID)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
         try {
             NotificationManagerCompat.from(this).notify(MAIN_BUBBLE_NOTIFICATION_ID, builder.build())
         } catch (e: SecurityException) {

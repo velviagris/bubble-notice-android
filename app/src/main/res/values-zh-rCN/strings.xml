@@ -10,6 +10,8 @@
     <string name="setting_bubble_desc">发送常驻通知，随时呼出气泡</string>
     <string name="setting_auto_jump_title">点击气泡通知自动跳转</string>
     <string name="setting_auto_jump_desc">开启后，点击气泡通知会直接跳转到对应应用，不显示气泡面板。</string>
+    <string name="setting_dnd_mode_title">气泡通知免打扰</string>
+    <string name="setting_dnd_mode_desc">开启后，同一个应用连续收到消息时不再弹出横幅，仅在气泡上显示圆点提示</string>
     <string name="setting_apps_title">常用应用管理</string>
     <string name="setting_apps_count">已选择 %1$d 个分屏应用</string>
     <string name="setting_apps_empty">未选择任何应用，点击添加</string>

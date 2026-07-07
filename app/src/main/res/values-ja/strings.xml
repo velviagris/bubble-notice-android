@@ -10,6 +10,8 @@
     <string name="setting_bubble_desc">常駐通知を送信し、いつでもバブルを呼び出せます。</string>
     <string name="setting_auto_jump_title">バブル通知クリックで自動ジャンプ</string>
     <string name="setting_auto_jump_desc">有効にすると、バブル通知をタップした際にバブルパネルを表示せず、直接アプリにジャンプします。</string>
+    <string name="setting_dnd_mode_title">バブル通知のサイレントモード</string>
+    <string name="setting_dnd_mode_desc">有効にすると、同じアプリから複数のメッセージを受信した際に、繰り返しポップアップする代わりにバブル上のドットのみで通知されます。</string>
     <string name="setting_apps_title">お気に入りアプリの管理</string>
     <string name="setting_apps_count">%1$d 個のアプリが選択されています</string>
     <string name="setting_apps_empty">アプリが選択されていません。タップして追加。</string>

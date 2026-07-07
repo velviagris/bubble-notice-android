@@ -21,6 +21,7 @@ object AppUtils {
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_TAKE_OVER_NOTIFICATIONS = "take_over_notifications"
     private const val KEY_AUTO_JUMP = "auto_jump_enabled"
+    private const val KEY_BUBBLE_DND = "bubble_dnd_enabled"
 
     // 临时拉起目标状态 / One-shot auto-launch target state.
     private var pendingAutoJumpIntent: android.app.PendingIntent? = null
@@ -136,6 +137,18 @@ object AppUtils {
     fun setAutoJumpEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit { putBoolean(KEY_AUTO_JUMP, enabled) }
+    }
+
+    // 读取气泡免打扰开关 / Read the bubble DND toggle. Default is false (always popup).
+    fun isBubbleDndModeEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_BUBBLE_DND, false)
+    }
+
+    // 保存气泡免打扰开关 / Save the bubble DND toggle.
+    fun setBubbleDndModeEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit { putBoolean(KEY_BUBBLE_DND, enabled) }
     }
 
     // 读取接管通知开关 / Read the notification takeover toggle.
