@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "io.github.gracethings.bubblenotice"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "io.github.gracethings.bubblenotice"
-        minSdk = 33
-        targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        minSdk = 30
+        targetSdk = 37
+        versionCode = 3
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
