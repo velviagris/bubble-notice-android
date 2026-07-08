@@ -13,7 +13,7 @@
     <string name="setting_dnd_mode_title">气泡通知免打扰</string>
     <string name="setting_dnd_mode_desc">开启后，同一个应用连续收到消息时不再弹出横幅，仅在气泡上显示圆点提示</string>
     <string name="setting_apps_title">常用应用管理</string>
-    <string name="setting_apps_count">已选择 %1$d 个分屏应用</string>
+    <string name="setting_apps_count">已选择 %1$d 个应用</string>
     <string name="setting_apps_empty">未选择任何应用，点击添加</string>
     <string name="selector_title">订阅应用</string>
     <string name="selector_done">完成</string>
@@ -28,10 +28,9 @@
     <string name="notif_channel_name_alert">气泡通知 (有声)</string>
     <string name="notification_listener_label">BubbleNotice 通知监听</string>
     <string name="notif_partner_name">应用中心</string>
-    <string name="notif_main_msg">点击右下角的小气泡图标，呼出分屏控制台！</string>
+    <string name="notif_main_msg">点击右下角的小气泡图标，呼出 Bubble Notice 控制台！</string>
     <string name="notif_dynamic_msg">点击打开</string>
     <string name="bubble_empty_state">尚未选择应用。\n请在主应用设置中添加。</string>
-    <string name="toast_cannot_split">该应用已在全屏运行，无法分屏拉起</string>
     <string name="setting_take_over_title">接管应用通知</string>
     <string name="setting_take_over_desc">开启后将原通知替换为气泡，关闭则两者同时显示</string>
     <string name="shortcut_show_bubble">显示气泡</string>

@@ -13,7 +13,7 @@
     <string name="setting_dnd_mode_title">氣泡通知勿擾模式</string>
     <string name="setting_dnd_mode_desc">開啟後，同一個應用連續收到訊息時不再彈出橫幅，僅在氣泡上顯示圓點提示。</string>
     <string name="setting_apps_title">常用應用管理</string>
-    <string name="setting_apps_count">已選擇 %1$d 個快捷應用</string>
+    <string name="setting_apps_count">已選擇 %1$d 個應用</string>
     <string name="setting_apps_empty">未選擇任何應用，點擊添加</string>
     <string name="selector_title">訂閱應用</string>
     <string name="selector_done">完成</string>
@@ -28,10 +28,9 @@
     <string name="notif_channel_name_alert">氣泡通知 (有聲)</string>
     <string name="notification_listener_label">BubbleNotice 通知監聽</string>
     <string name="notif_partner_name">應用中心</string>
-    <string name="notif_main_msg">點擊右下角的小氣泡圖示，呼出控制台！</string>
+    <string name="notif_main_msg">點擊右下角的小氣泡圖示，呼出 Bubble Notice 控制台！</string>
     <string name="notif_dynamic_msg">點擊打開</string>
     <string name="bubble_empty_state">尚未選擇應用。\n請在主應用設定中添加。</string>
-    <string name="toast_cannot_split">該應用已在全螢幕運行，無法分螢幕拉起</string>
     <string name="setting_take_over_title">接管應用通知</string>
     <string name="setting_take_over_desc">開啟後將原通知替換為氣泡，關閉則兩者同時顯示</string>
     <string name="shortcut_show_bubble">顯示氣泡</string>

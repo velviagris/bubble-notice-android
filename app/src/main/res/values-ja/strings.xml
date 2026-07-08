@@ -28,10 +28,9 @@
     <string name="notif_channel_name_alert">バブル通知 (アラート)</string>
     <string name="notification_listener_label">BubbleNotice 通知リスナー</string>
     <string name="notif_partner_name">アプリセンター</string>
-    <string name="notif_main_msg">バブルアイコンをタップしてコンソールを開きます！</string>
+    <string name="notif_main_msg">バブルアイコンをタップして Bubble Notice コンソールを開きます！</string>
     <string name="notif_dynamic_msg">タップして開く</string>
     <string name="bubble_empty_state">アプリが選択されていません。\nメインアプリの設定から追加してください。</string>
-    <string name="toast_cannot_split">全画面で実行中のため分割できません。</string>
     <string name="setting_take_over_title">通知の引き継ぎ</string>
     <string name="setting_take_over_desc">有効にすると元の通知をバブルに置き換えます。無効にすると両方表示されます。</string>
     <string name="shortcut_show_bubble">バブルを表示</string>
@@ -41,4 +40,6 @@
     <string name="btn_clear_all">全て消去</string>
     <string name="empty_quick_launch">クイック起動アプリはありません</string>
     <string name="action_open_app">アプリを開く</string>
+    <string name="desc_enter">開く</string>
+    <string name="btn_clear">クリア</string>
 </resources>

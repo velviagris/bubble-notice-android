@@ -28,10 +28,9 @@
     <string name="notif_channel_name_alert">버블 알림 (소리)</string>
     <string name="notification_listener_label">BubbleNotice 알림 리스너</string>
     <string name="notif_partner_name">앱 센터</string>
-    <string name="notif_main_msg">버블 아이콘을 탭하여 콘솔을 엽니다!</string>
+    <string name="notif_main_msg">버블 아이콘을 탭하여 Bubble Notice 콘솔을 엽니다!</string>
     <string name="notif_dynamic_msg">탭하여 열기</string>
-    <string name="bubble_empty_state">선택된 앱이 없습니다。\n기본 앱 설정에서 추가하세요.</string>
-    <string name="toast_cannot_split">전체 화면에서 실행 중이므로 분할할 수 없습니다.</string>
+    <string name="bubble_empty_state">선택된 앱이 없습니다。\n기본 앱 설정에서 추가하세요。</string>
     <string name="setting_take_over_title">알림 덮어쓰기</string>
     <string name="setting_take_over_desc">활성화 시 원래 알림을 버블로 대체합니다. 비활성화 시 둘 다 표시됩니다.</string>
     <string name="shortcut_show_bubble">버블 표시</string>
@@ -41,4 +40,6 @@
     <string name="btn_clear_all">모두 지우기</string>
     <string name="empty_quick_launch">빠른 실행 앱이 없습니다</string>
     <string name="action_open_app">앱 열기</string>
+    <string name="desc_enter">열기</string>
+    <string name="btn_clear">지우기</string>
 </resources>

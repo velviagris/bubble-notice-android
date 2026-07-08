@@ -74,6 +74,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 val isNewMessage = pkg != lastMessagePkg || title != lastMessageTitle || text != lastMessageText || msgTime != lastEventTime
 
                 val originalIntent = notification.contentIntent
+                val originalSmallIcon = notification.smallIcon
 
                 // 如果用户已经手动移除了当前气泡，且没有新消息，则不重新显示气泡 / If user dismissed the bubble and no new message, do not show again.
                 if (isBubbleDismissed && !isNewMessage) {
@@ -100,7 +101,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                     cancelNotification(sbn.key)
                 }
 
-                updateMainBubble(pkg, appName, title, text, msgTime, isUpdate = !isNewMessage, isTakeOver = isTakeOver, originalIntent = originalIntent)
+                updateMainBubble(pkg, appName, title, text, msgTime, isUpdate = !isNewMessage, isTakeOver = isTakeOver, originalIntent = originalIntent, originalSmallIcon = originalSmallIcon)
             }
         }
     }
@@ -133,7 +134,8 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         msgTime: Long,
         isUpdate: Boolean,
         isTakeOver: Boolean,
-        originalIntent: PendingIntent?
+        originalIntent: PendingIntent?,
+        originalSmallIcon: android.graphics.drawable.Icon?
     ) {
         val channelId = if (!isUpdate) {
             AppUtils.BUBBLE_CHANNEL_ALERT_ID
@@ -202,11 +204,18 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             0, getString(R.string.action_open_app), finalContentIntent
         ).build()
 
+        val smallIconCompat = originalSmallIcon?.let {
+            try {
+                IconCompat.createFromIcon(this, it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+
         val builder = NotificationCompat.Builder(this, channelId)
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(finalContentIntent) // 点击通知主体 / Tap the notification body.
-            .setSmallIcon(R.drawable.ic_notification)
             .setStyle(style)
             .setBubbleMetadata(bubbleData)        // 绑定气泡入口 / Bind the bubble entry point.
             .setShortcutId(shortcutId)
@@ -216,6 +225,12 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             .setOnlyAlertOnce(isUpdate) // 更新时静默 / Quietly update repeated messages.
             .setAutoCancel(true)        // 点击后清除通知 / Clear after tapping the notification.
             .addAction(openAppAction)   // 提供明确的打开应用按钮 / Provide explicit button to bypass bubble expansion.
+
+        if (smallIconCompat != null) {
+            builder.setSmallIcon(smallIconCompat)
+        } else {
+            builder.setSmallIcon(R.drawable.ic_notification)
+        }
 
         val isDndMode = AppUtils.isBubbleDndModeEnabled(this)
         if (!isDndMode && !isUpdate) {

@@ -12,7 +12,7 @@
     <string name="setting_dnd_mode_title">Bubble Notification Do-Not-Disturb</string>
     <string name="setting_dnd_mode_desc">When enabled, multiple messages from the same app will only show a dot instead of popping up repeatedly.</string>
     <string name="setting_apps_title">Manage Favorite Apps</string>
-    <string name="setting_apps_count">%1$d split-screen apps selected</string>
+    <string name="setting_apps_count">%1$d apps selected</string>
     <string name="setting_apps_empty">No apps selected. Tap to add.</string>
     <string name="selector_title">Subscribe Apps</string>
     <string name="selector_done">Done</string>
@@ -27,10 +27,9 @@
     <string name="notif_channel_name_alert">Bubble Notifications (Alert)</string>
     <string name="notification_listener_label">BubbleNotice Notification Listener</string>
     <string name="notif_partner_name">App Center</string>
-    <string name="notif_main_msg">Tap the bubble icon to open the split-screen console!</string>
+    <string name="notif_main_msg">Tap the bubble icon to open the bubble notice console!</string>
     <string name="notif_dynamic_msg">Tap to open</string>
     <string name="bubble_empty_state">No apps selected.\nPlease add them in the main app settings.</string>
-    <string name="toast_cannot_split">Cannot open in split-screen while running in full screen.</string>
     <string name="setting_take_over_title">Take Over Notifications</string>
     <string name="setting_take_over_desc">Replace original notifications with bubbles when enabled; show both when disabled.</string>
     <string name="shortcut_show_bubble">Show Bubble</string>
