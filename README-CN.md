@@ -1,6 +1,6 @@
 # 无感小窗 (Bubble Notice)
 
-[English](https://github.com/velviagris/BubbleNotice/blob/master/README.md)
+[English](https://github.com/GraceThings/BubbleNotice/blob/master/README.md)
 
 ## 关于
 
@@ -8,24 +8,24 @@
 
 ## 功能
 
-- 添加你喜欢的应用
-- 为新通知显示气泡
-- 点击气泡进行分屏
+- 订阅你常用的应用
+- 为新通知生成常驻消息气泡
+- 在统一的气泡控制台中集中管理未读消息
+- 点击通知或气泡卡片，即可直接跳转至对应聊天界面
 - 移除气泡以避免打扰
 
 ## 如何使用
 
 1. 允许读取 "通知使用权"
-2. (可选) 允许读取 "应用使用情况"
-3. 管理收藏的应用
-4. 启用并显示气泡
+2. 订阅常用的应用
+3. 启用并显示主控台气泡
 
-> 设置好 BubbleNotice 后, 当有新通知到达时, 点击气泡即可分屏, 你可以随意回复消息或做任何你想做的事情!
+> 设置好 BubbleNotice 后, 当有新通知到达时, 点击气泡弹出的通知或控制台内的未读消息卡片，即可一键直达应用内对应的聊天界面!
 
 ## Bug 反馈
 
-提交一个 [issue](https://github.com/velviagris/BubbleNotice/issues).
+提交一个 [issue](https://github.com/GraceThings/BubbleNotice/issues).
 
 ## 开源协议
 
-参阅 [License](https://github.com/velviagris/BubbleNotice/blob/main/LICENSE).
+参阅 [License](https://github.com/GraceThings/BubbleNotice/blob/main/LICENSE).

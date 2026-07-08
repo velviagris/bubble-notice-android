@@ -41,7 +41,7 @@ import io.github.gracethings.bubblenotice.BuildConfig
 import io.github.gracethings.bubblenotice.R
 import io.github.gracethings.bubblenotice.ui.theme.BubbleNoticeTheme
 
-private const val PROJECT_URL = "https://github.com/velviagris/BubbleNotice"
+private const val PROJECT_URL = "https://github.com/GraceThings/BubbleNotice"
 
 @Composable
 fun AboutScreen() {

@@ -1,6 +1,6 @@
 # Bubble Notice
 
-[中文](https://github.com/velviagris/BubbleNotice/blob/master/README-CN.md)
+[中文](https://github.com/GraceThings/BubbleNotice/blob/master/README-CN.md)
 
 ## About
 
@@ -8,25 +8,25 @@ This is a lightweight application, inspired by Multitasking 'Bubbles' in Android
 
 ## Features
 
-- Add your favorite apps
-- Show bubbles for incoming notifications
-- Tap bubble to split screen
+- Subscribe to your favorite apps
+- Show persistent message bubbles for incoming notifications
+- Aggregate unread messages in a unified bubble console
+- Directly jump to specific chat pages when tapping notifications or unread cards
 - Dismiss bubbles to avoid distractions
 
 ## How to use
 
 1. Allow reading "Notification Access"
-2. (Optional) Allow reading "Package Usage Stats"
-3. Manage Favorite Apps
-4. Enable and display bubble
+2. Manage Favorite Apps
+3. Enable and display bubble
 
-> After setting up BubbleNotice, when new notifications come, tap bubble to split your screen, feel free to reply message or do anything you want!
+> After setting up BubbleNotice, when new notifications come, tap the bubble notification or the unread message card in the console to jump directly to the specific chat!
 
 ## Bugs report
 
-Open an [issue](https://github.com/velviagris/BubbleNotice/issues).
+Open an [issue](https://github.com/GraceThings/BubbleNotice/issues).
 
 ## License
 
-See [License](https://github.com/velviagris/BubbleNotice/blob/main/LICENSE).
+See [License](https://github.com/GraceThings/BubbleNotice/blob/main/LICENSE).
 
