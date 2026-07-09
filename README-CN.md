@@ -24,6 +24,14 @@
 - 点击通知或气泡卡片，即可直接跳转至对应聊天界面
 - 移除气泡以避免打扰
 
+## 从 Google Play 安装
+
+帮助我完成 Google Play 的内部测试, 非常感谢! :)
+
+1. 先加入 [测试群组](https://groups.google.com/g/gracethings-testing-group)
+2. 然后在网页端 [加入测试](https://play.google.com/apps/testing/io.github.gracethings.bubblenotice)
+3. 最后前往商店 [下载安装](https://play.google.com/store/apps/details?id=io.github.gracethings.bubblenotice)
+
 ## 如何使用
 
 1. 允许读取 "通知使用权"

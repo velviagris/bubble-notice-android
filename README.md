@@ -24,6 +24,14 @@ A lightweight bubble notice tool, inspired by Multitasking 'Bubbles' in Android 
 - Directly jump to specific chat pages when tapping notifications or unread cards
 - Dismiss bubbles to avoid distractions
 
+## Install from Google Play
+
+A huge thank you to everyone who helps me pass the Closed Testing! :)
+
+1. Join the [Testing Group](https://groups.google.com/g/gracethings-testing-group).
+2. Opt-in to the test on the [Web](https://play.google.com/apps/testing/io.github.gracethings.bubblenotice).
+3. Download and install from [Google Play](https://play.google.com/store/apps/details?id=io.github.gracethings.bubblenotice).
+
 ## How to use
 
 1. Allow reading "Notification Access"
