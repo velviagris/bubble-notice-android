@@ -163,7 +163,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         } else {
             AppUtils.BUBBLE_CHANNEL_SILENT_ID
         }
-        val shortcutId = "bubble_split_shortcut"
+        val shortcutId = "bubble_notice_shortcut"
 
         val appIconDrawable = try {
             packageManager.getApplicationIcon(pkg)
@@ -179,7 +179,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             .setImportant(true)
             .build()
 
-        // 气泡行为意图 / Bubble action intent: open BubbleActivity as the split-screen console.
+        // 气泡行为意图 / Bubble action intent: open BubbleActivity as the bubble-notice console.
         val targetIntent = Intent(this, BubbleActivity::class.java).apply {
             putExtra("EXTRA_PACKAGE_NAME", pkg)
             putExtra("EXTRA_TITLE", title)

@@ -157,7 +157,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun sendBubbleNotification() {
-        val shortcutId = "bubble_split_shortcut"
+        val shortcutId = "bubble_notice_shortcut"
         val target = Intent(this, BubbleActivity::class.java)
         val bubbleIntent = PendingIntent.getActivity(
             this, 0, target,
