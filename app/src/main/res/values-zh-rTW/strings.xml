@@ -42,4 +42,8 @@
     <string name="action_open_app">打開應用</string>
     <string name="desc_enter">進入</string>
     <string name="btn_clear">清除</string>
+    <string name="about_bug_report">Bug 反饋</string>
+    <string name="about_export_logs">匯出日誌</string>
+    <string name="toast_logs_exported">日誌匯出成功</string>
+    <string name="toast_logs_empty">暫無日誌可匯出</string>
 </resources>

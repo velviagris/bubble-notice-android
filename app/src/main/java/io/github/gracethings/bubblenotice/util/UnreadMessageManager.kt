@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package io.github.gracethings.bubblenotice.util
+
+import io.github.gracethings.bubblenotice.util.AppLogger
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,3 +66,4 @@ object UnreadMessageManager {
         }
     }
 }
+

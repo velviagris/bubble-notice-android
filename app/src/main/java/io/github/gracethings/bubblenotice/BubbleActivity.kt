@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import io.github.gracethings.bubblenotice.model.AppItem
 import io.github.gracethings.bubblenotice.util.AppUtils
+import io.github.gracethings.bubblenotice.util.AppLogger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -118,11 +119,11 @@ class BubbleActivity : ComponentActivity() {
                     val messages by UnreadMessageManager.messagesFlow.collectAsState()
                     var selectedTab by remember { mutableStateOf(0) }
 
-                    // 如果未读消息为空，则强制切换到应用列�?tab / If messages are empty, default to tab 1 (Apps).
+                    // 如果未读消息为空，则强制切换到应用列�?tab / If messages are empty, default to tab 1 (Apps).
                     val activeTab = if (messages.isEmpty()) 1 else selectedTab
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // 仅当有未读消息时才显示选项�?/ Show tabs only when there are unread messages.
+                        // 仅当有未读消息时才显示选项�?/ Show tabs only when there are unread messages.
                         if (messages.isNotEmpty()) {
                             SecondaryTabRow(
                                 selectedTabIndex = activeTab,
@@ -168,7 +169,7 @@ class BubbleActivity : ComponentActivity() {
                             }
                         }
 
-                        // 带动画切换面板和选择�?/ Animate content switching.
+                        // 带动画切换面板和选择�?/ Animate content switching.
                         Crossfade(targetState = activeTab, label = "BubbleTabTransition") { tab ->
                             when (tab) {
                                 0 -> UnreadMessagesDashboard(
@@ -235,7 +236,7 @@ class BubbleActivity : ComponentActivity() {
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // 顶部操作�?/ Top bar
+            // 顶部操作�?/ Top bar
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -343,7 +344,7 @@ class BubbleActivity : ComponentActivity() {
                                     )
                                 }
 
-                                // 移除该联系人所有未�?/ Clear messages for this sender
+                                // 移除该联系人所有未�?/ Clear messages for this sender
                                 IconButton(
                                     onClick = {
                                         UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
@@ -360,7 +361,7 @@ class BubbleActivity : ComponentActivity() {
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // 该发送人期间的所有未读消息内容卡�?/ Message content box -> Message Bubbles
+                            // 该发送人期间的所有未读消息内容卡�?/ Message content box -> Message Bubbles
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                                 modifier = Modifier.fillMaxWidth()
@@ -403,7 +404,7 @@ class BubbleActivity : ComponentActivity() {
         val context = LocalContext.current
         val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-        // 刷新触发�?/ Refresh trigger for app list reloads.
+        // 刷新触发�?/ Refresh trigger for app list reloads.
         var refreshTrigger by remember { mutableStateOf(0) }
 
         // 监听气泡展开 / Increment the trigger whenever the bubble resumes.
@@ -419,7 +420,7 @@ class BubbleActivity : ComponentActivity() {
             }
         }
 
-        // 回到前台时刷新应用列�?/ Reload selected apps whenever the bubble returns to foreground.
+        // 回到前台时刷新应用列�?/ Reload selected apps whenever the bubble returns to foreground.
         LaunchedEffect(refreshTrigger) {
             isLoading = true
             val selectedPackages = AppUtils.getSelectedApps(context)
@@ -517,3 +518,4 @@ class BubbleActivity : ComponentActivity() {
 
 
 }
+

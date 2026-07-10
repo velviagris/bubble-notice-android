@@ -16,8 +16,12 @@
  */
 package io.github.gracethings.bubblenotice.ui.screen
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +34,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -47,6 +53,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,11 +64,39 @@ import androidx.compose.ui.unit.dp
 import io.github.gracethings.bubblenotice.BuildConfig
 import io.github.gracethings.bubblenotice.R
 import io.github.gracethings.bubblenotice.ui.theme.BubbleNoticeTheme
+import io.github.gracethings.bubblenotice.util.AppLogger
+import java.io.FileInputStream
 
 private const val PROJECT_URL = "https://github.com/GraceThings/bubble-notice-android"
+private const val ISSUES_URL = "https://github.com/GraceThings/bubble-notice-android/issues"
 
 @Composable
 fun AboutScreen() {
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+
+    val exportLogsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri != null) {
+            val logFile = AppLogger.getLogFile()
+            if (logFile != null && logFile.exists()) {
+                try {
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        FileInputStream(logFile).use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+                    Toast.makeText(context, R.string.toast_logs_exported, Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    AppLogger.e("AboutScreen", "Failed to export logs", e)
+                }
+            } else {
+                Toast.makeText(context, R.string.toast_logs_empty, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -157,7 +193,24 @@ fun AboutScreen() {
                 AboutListItem(
                     icon = { Icon(Icons.Default.Code, contentDescription = null) },
                     title = stringResource(R.string.about_project_url),
-                    subtitle = PROJECT_URL
+                    subtitle = PROJECT_URL,
+                    modifier = Modifier.clickable { uriHandler.openUri(PROJECT_URL) }
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                AboutListItem(
+                    icon = { Icon(Icons.Default.BugReport, contentDescription = null) },
+                    title = stringResource(R.string.about_bug_report),
+                    subtitle = ISSUES_URL,
+                    modifier = Modifier.clickable { uriHandler.openUri(ISSUES_URL) }
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                AboutListItem(
+                    icon = { Icon(Icons.Default.Download, contentDescription = null) },
+                    title = stringResource(R.string.about_export_logs),
+                    subtitle = "app_logs.txt",
+                    modifier = Modifier.clickable {
+                        exportLogsLauncher.launch("app_logs.txt")
+                    }
                 )
             }
         }
@@ -170,9 +223,11 @@ fun AboutScreen() {
 private fun AboutListItem(
     icon: @Composable () -> Unit,
     title: String,
-    subtitle: String
+    subtitle: String,
+    modifier: Modifier = Modifier
 ) {
     ListItem(
+        modifier = modifier,
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         leadingContent = icon,
         headlineContent = {
