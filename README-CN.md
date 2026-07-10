@@ -6,19 +6,19 @@
 
 一个轻量级的气泡通知工具, 为 Android 17 中的多任务 "气泡" 功能提供更符合直觉的通知, 且同样适用于支持 "气泡" 的更低安卓版本, 无需 "Root/Shizuku" 权限.
 
-## 应用效果
+## 演示
 
 ### 截图对比
 
 | 原始通知                                                                     | 启用气泡通知                                                                      |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![Original Notifications Preview](screenshots/original-notification.png) | ![Bubble Notice Activated Preview](screenshots/bubble-notice-activated.png) |
+| <img src="screenshots/original-notification.png" width="300" /> | <img src="screenshots/bubble-notice-activated.png" width="300" /> |
 
 ### 动图对比
 
 | 原始通知                                                                     | 启用气泡通知                                                                      |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![Original Notifications Preview](screenshots/original-notification.gif) | ![Bubble Notice Activated Preview](screenshots/bubble-notice-activated.gif) |
+| <img src="screenshots/original-notification.gif" width="300" /> | <img src="screenshots/bubble-notice-activated.gif" width="300" /> |
 
 ## 功能
 

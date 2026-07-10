@@ -6,19 +6,19 @@
 
 A lightweight bubble notice tool, providing more intuitive notifications for the Multitasking 'Bubbles' feature in Android 17, and is also applicable to lower Android versions that support "Bubbles", no "Root/Shizuku" required.
 
-## App Effects
+## Demo
 
 ### Screenshot Comparison
 
 | Original Notifications                                                   | Bubble Notice Activated                                                     |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![Original Notifications Preview](screenshots/original-notification.png) | ![Bubble Notice Activated Preview](screenshots/bubble-notice-activated.png) |
+| <img src="screenshots/original-notification.png" width="300" /> | <img src="screenshots/bubble-notice-activated.png" width="300" /> |
 
 ### GIF Comparison
 
 | Original Notifications                                                   | Bubble Notice Activated                                                     |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![Original Notifications Preview](screenshots/original-notification.gif) | ![Bubble Notice Activated Preview](screenshots/bubble-notice-activated.gif) |
+| <img src="screenshots/original-notification.gif" width="300" /> | <img src="screenshots/bubble-notice-activated.gif" width="300" /> |
 
 ## Features
 
