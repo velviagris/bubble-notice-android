@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -134,7 +134,8 @@ fun AboutScreen() {
                     Image(
                         painter = painterResource(id = R.drawable.ic_launcher_foreground),
                         contentDescription = stringResource(R.string.app_name),
-                        modifier = Modifier.size(56.dp)
+                        modifier = Modifier.size(56.dp),
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.primary)
                     )
                 }
 
@@ -255,3 +256,4 @@ fun PreviewAboutScreen() {
         }
     }
 }
+

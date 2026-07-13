@@ -43,7 +43,7 @@ object UnreadMessageManager {
                 it.packageName == packageName && 
                 it.senderName == senderName && 
                 it.messageText == messageText && 
-                Math.abs(it.timestamp - timestamp) < 1000 
+                true 
             }
             if (!isDuplicate) {
                 messagesList.add(Message(packageName, senderName, messageText, timestamp, contentIntent))
@@ -66,4 +66,5 @@ object UnreadMessageManager {
         }
     }
 }
+
 

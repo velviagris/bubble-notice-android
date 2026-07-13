@@ -44,5 +44,8 @@
     <string name="about_export_logs">로그 내보내기</string>
     <string name="toast_logs_exported">로그를 내보냈습니다</string>
     <string name="toast_logs_empty">내보낼 로그가 없습니다</string>
+    <string name="btn_view_more">더 보기</string>
+    <string name="btn_collapse">접기</string>
 </resources>
+
 

@@ -88,7 +88,8 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 // 提取通知时间戳进行比�?/ Extract timestamp for comparison.
                 val msgTime = if (notification.`when` != 0L) notification.`when` else sbn.postTime
 
-                  val isNewMessage = pkg != lastMessagePkg || title != lastMessageTitle || text != lastMessageText || msgTime != lastEventTime
+                  val isSameContent = pkg == lastMessagePkg && title == lastMessageTitle && text == lastMessageText
+                  val isNewMessage = !isSameContent
 
                 val originalIntent = notification.contentIntent
                 val originalSmallIcon = notification.smallIcon
@@ -265,6 +266,8 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         }
     }
 }
+
+
 
 
 
