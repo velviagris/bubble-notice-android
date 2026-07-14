@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -56,19 +56,24 @@ object AppUtils {
 
     // 异步加载桌面可启动应�?/ Asynchronously load launcher apps.
     suspend fun loadInstalledApps(context: Context): List<AppItem> = withContext(Dispatchers.IO) {
-        val pm = context.packageManager
-        val intent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+        val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+        val density = context.resources.displayMetrics.densityDpi
+        val apps = mutableListOf<AppItem>()
 
-        resolveInfos.map { info ->
-            AppItem(
-                name = info.loadLabel(pm).toString(),
-                packageName = info.activityInfo.packageName,
-                icon = info.loadIcon(pm)
-            )
-        }.sortedBy { it.name }
+        for (profile in userManager.userProfiles) {
+            val activities = launcherApps.getActivityList(null, profile)
+            for (activity in activities) {
+                apps.add(
+                    AppItem(
+                        name = activity.label.toString(),
+                        packageName = activity.applicationInfo.packageName,
+                        icon = activity.getBadgedIcon(density)
+                    )
+                )
+            }
+        }
+        apps.distinctBy { it.packageName }.sortedBy { it.name }
     }
 
     // 按包名获取应用名�?/ Get app name by package name.
