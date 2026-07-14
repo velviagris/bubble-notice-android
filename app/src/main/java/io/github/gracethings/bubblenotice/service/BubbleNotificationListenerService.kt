@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -63,10 +63,6 @@ class BubbleNotificationListenerService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (sbn.user != Process.myUserHandle()) {
-            return
-        }
-
         val pkg = sbn.packageName
         if (pkg == packageName) return
 
@@ -176,8 +172,9 @@ class BubbleNotificationListenerService : NotificationListenerService() {
             .setImportant(true)
             .build()
 
-        // 气泡行为意图 / Bubble action intent: open BubbleActivity as the bubble-notice console.
+        // 气泡点击意图 / Bubble action intent: open BubbleActivity as the bubble-notice console.
         val targetIntent = Intent(this, BubbleActivity::class.java).apply {
+            setPackage(packageName)
             putExtra("EXTRA_PACKAGE_NAME", pkg)
             putExtra("EXTRA_TITLE", title)
             putExtra("EXTRA_TEXT", text)
@@ -190,11 +187,14 @@ class BubbleNotificationListenerService : NotificationListenerService() {
 
         val bubbleData = NotificationCompat.BubbleMetadata.Builder(bubbleIntent, icon)
             .setDesiredHeight(600)
-            .setAutoExpandBubble(false) // 默认不强行弹�?/ Let Android decide when to expand.
+            .setAutoExpandBubble(false) // 默认不强行弹?/ Let Android decide when to expand.
             .setSuppressNotification(false) // 确保不抑制通知显示 / Ensure notification is not suppressed.
             .build()
 
-        val shortcutIntent = Intent(this, MainActivity::class.java).apply { action = Intent.ACTION_MAIN }
+        val shortcutIntent = Intent(this, MainActivity::class.java).apply { 
+            action = Intent.ACTION_MAIN 
+            setPackage(packageName)
+        }
         val shortcut = ShortcutInfoCompat.Builder(this, shortcutId)
             .setCategories(setOf("android.shortcut.conversation"))
             .setIntent(shortcutIntent)
@@ -208,10 +208,11 @@ class BubbleNotificationListenerService : NotificationListenerService() {
         val style = NotificationCompat.MessagingStyle(chatPartner)
             .addMessage("$title: $text", System.currentTimeMillis(), chatPartner)
 
-        // 通知主体意图 / Notification body intent: launch the target app directly.
+        // 通知体意图 / Notification body intent: launch the target app directly.
         val launchIntent = packageManager.getLaunchIntentForPackage(pkg)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        } ?: Intent(this, MainActivity::class.java)
+            setPackage(pkg)
+        } ?: Intent(this, MainActivity::class.java).apply { setPackage(packageName) }
 
         val finalContentIntent = originalIntent ?: PendingIntent.getActivity(
             this, 1, launchIntent,

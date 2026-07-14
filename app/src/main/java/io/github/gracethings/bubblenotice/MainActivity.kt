@@ -56,7 +56,9 @@ class MainActivity : ComponentActivity() {
 
         fun sendBubbleNotification(context: android.content.Context) {
             val shortcutId = "bubble_notice_shortcut"
-            val target = android.content.Intent(context, BubbleActivity::class.java)
+            val target = android.content.Intent(context, BubbleActivity::class.java).apply {
+                setPackage(context.packageName)
+            }
             val bubbleIntent = android.app.PendingIntent.getActivity(
                 context, 0, target,
                 android.app.PendingIntent.FLAG_MUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
@@ -69,7 +71,10 @@ class MainActivity : ComponentActivity() {
                 .setImportant(true)
                 .build()
 
-            val shortcutIntent = android.content.Intent(context, MainActivity::class.java).apply { action = android.content.Intent.ACTION_MAIN }
+            val shortcutIntent = android.content.Intent(context, MainActivity::class.java).apply { 
+                action = android.content.Intent.ACTION_MAIN
+                setPackage(context.packageName)
+            }
             val shortcut = androidx.core.content.pm.ShortcutInfoCompat.Builder(context, shortcutId)
                 .setCategories(setOf("android.shortcut.conversation"))
                 .setIntent(shortcutIntent)
@@ -85,7 +90,9 @@ class MainActivity : ComponentActivity() {
                 .build()
 
             val contentIntent = android.app.PendingIntent.getActivity(
-                context, 1, android.content.Intent(context, MainActivity::class.java),
+                context, 1, android.content.Intent(context, MainActivity::class.java).apply {
+                    setPackage(context.packageName)
+                },
                 android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
             )
 
