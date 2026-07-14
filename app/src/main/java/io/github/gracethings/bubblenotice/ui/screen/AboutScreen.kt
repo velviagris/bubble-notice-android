@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,34 +29,31 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.remember
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -70,6 +67,9 @@ import io.github.gracethings.bubblenotice.R
 import io.github.gracethings.bubblenotice.ui.theme.BubbleNoticeTheme
 import io.github.gracethings.bubblenotice.util.AppLogger
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private const val PROJECT_URL = "https://github.com/GraceThings/bubble-notice-android"
 private const val ISSUES_URL = "https://github.com/GraceThings/bubble-notice-android/issues"
@@ -106,29 +106,29 @@ fun AboutScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = stringResource(R.string.about_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+            modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
         )
 
         Card(
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(vertical = 32.dp, horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(
                     modifier = Modifier
@@ -145,84 +145,69 @@ fun AboutScreen() {
                     )
                 }
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = stringResource(R.string.about_version_format, BuildConfig.VERSION_NAME),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Text(
+                    text = stringResource(R.string.about_version_format, BuildConfig.VERSION_NAME),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                )
             }
         }
 
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
+        Text(
+            text = stringResource(R.string.about_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 24.dp, bottom = 8.dp, start = 8.dp)
+        )
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column {
-                AboutListItem(
-                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    title = stringResource(R.string.about_developer_label),
-                    subtitle = stringResource(R.string.about_developer_name)
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                AboutListItem(
-                    icon = { Icon(Icons.Default.Code, contentDescription = null) },
-                    title = stringResource(R.string.about_project_url),
-                    subtitle = PROJECT_URL,
-                    modifier = Modifier.clickable { uriHandler.openUri(PROJECT_URL) }
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                AboutListItem(
-                    icon = { Icon(Icons.Default.BugReport, contentDescription = null) },
-                    title = stringResource(R.string.about_bug_report),
-                    subtitle = ISSUES_URL,
-                    modifier = Modifier.clickable { uriHandler.openUri(ISSUES_URL) }
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                AboutListItem(
-                    icon = { Icon(Icons.Default.Download, contentDescription = null) },
-                    title = stringResource(R.string.about_export_logs),
-                    subtitle = logFileName,
-                    modifier = Modifier.clickable {
-                        exportLogsLauncher.launch(logFileName)
-                    }
-                )
-            }
+            val topShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+            val middleShape = RoundedCornerShape(4.dp)
+            val bottomShape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
+
+            AboutListItem(
+                icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                title = stringResource(R.string.about_developer_label),
+                subtitle = stringResource(R.string.about_developer_name),
+                showTrailingArrow = false,
+                shape = topShape
+            )
+            AboutListItem(
+                icon = { Icon(Icons.Default.Code, contentDescription = null) },
+                title = stringResource(R.string.about_project_url),
+                showTrailingArrow = true,
+                shape = middleShape,
+                onClick = { uriHandler.openUri(PROJECT_URL) }
+            )
+            AboutListItem(
+                icon = { Icon(Icons.Default.BugReport, contentDescription = null) },
+                title = stringResource(R.string.about_bug_report),
+                showTrailingArrow = true,
+                shape = middleShape,
+                onClick = { uriHandler.openUri(ISSUES_URL) }
+            )
+            AboutListItem(
+                icon = { Icon(Icons.Default.Download, contentDescription = null) },
+                title = stringResource(R.string.about_export_logs),
+                showTrailingArrow = true,
+                shape = bottomShape,
+                onClick = { exportLogsLauncher.launch(logFileName) }
+            )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -230,37 +215,56 @@ fun AboutScreen() {
 private fun AboutListItem(
     icon: @Composable () -> Unit,
     title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier
+    subtitle: String? = null,
+    showTrailingArrow: Boolean = false,
+    shape: Shape = RoundedCornerShape(4.dp),
+    onClick: (() -> Unit)? = null
 ) {
-    Row(
-        modifier = modifier
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
     ) {
-        Box(
-            modifier = Modifier.padding(end = 16.dp),
-            contentAlignment = Alignment.Center
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            icon()
-        }
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Box(
+                modifier = Modifier.padding(end = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                icon()
+            }
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            if (showTrailingArrow) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -274,4 +278,3 @@ fun PreviewAboutScreen() {
         }
     }
 }
-
