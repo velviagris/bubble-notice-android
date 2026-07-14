@@ -1,51 +1,49 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Bubble Notice</string>
     <string name="tab_settings">설정</string>
     <string name="tab_about">정보</string>
-    <string name="setting_permission_title">알림 접근 권한</string>
-    <string name="setting_permission_granted">권한 허용됨. 버블이 자동 생성됩니다.</string>
-    <string name="setting_permission_denied">권한 없음. 탭하여 권한을 부여하세요.</string>
-    <string name="setting_bubble_title">콘솔 버블 활성화</string>
-    <string name="setting_bubble_desc">상주 알림을 보내 언제든 버블을 호출합니다.</string>
-    <string name="setting_auto_jump_title">버블 알림 클릭 시 자동 이동</string>
-    <string name="setting_auto_jump_desc">활성화 시 버블 알림을 탭하면 버블 패널을 표시하지 않고 바로 앱으로 이동합니다.</string>
-    <string name="setting_apps_title">즐겨찾기 앱 관리</string>
-    <string name="setting_apps_count">%1$d개의 앱이 선택되었습니다</string>
+    <string name="setting_permission_title">알림 접근 허용</string>
+    <string name="setting_permission_granted">허용됨. 버블이 자동 생성됩니다.</string>
+    <string name="setting_permission_denied">거부됨. 탭하여 권한을 허용하세요.</string>
+    <string name="setting_bubble_title">버블 호출</string>
+    <string name="setting_bubble_desc">상시 알림을 통해 언제든 버블을 호출합니다.</string>
+    <string name="setting_auto_jump_title">자동 이동</string>
+    <string name="setting_auto_jump_desc">버블 알림을 탭하면 버블 패널을 표시하지 않고 앱으로 직접 이동합니다.</string>
+    <string name="setting_apps_title">구독 앱</string>
+    <string name="setting_apps_count">%1$d개의 앱 선택됨</string>
     <string name="setting_apps_empty">선택된 앱이 없습니다. 탭하여 추가하세요.</string>
-    <string name="selector_title">앱 구독</string>
+    <string name="selector_title">구독 앱</string>
     <string name="selector_done">완료</string>
     <string name="selector_back">뒤로</string>
     <string name="about_title">정보</string>
     <string name="about_version_format">버전 %1$s</string>
     <string name="about_developer_label">개발자</string>
     <string name="about_developer_name">Grace Chan</string>
-    <string name="about_project_url">프로젝트 URL:</string>
-    <string name="notif_channel_name">버블 알림</string>
+    <string name="about_project_url">프로젝트 URL</string>
+    <string name="notif_channel_name">Bubble Notifications</string>
     <string name="notif_channel_name_silent">버블 알림 (무음)</string>
     <string name="notif_channel_name_alert">버블 알림 (소리)</string>
     <string name="notification_listener_label">BubbleNotice 알림 리스너</string>
     <string name="notif_partner_name">앱 센터</string>
-    <string name="notif_main_msg">버블 아이콘을 탭하여 Bubble Notice 콘솔을 엽니다!</string>
+    <string name="notif_main_msg">우측 하단의 버블 아이콘을 탭하여 콘솔을 엽니다!</string>
     <string name="notif_dynamic_msg">탭하여 열기</string>
-    <string name="bubble_empty_state">선택된 앱이 없습니다。\n기본 앱 설정에서 추가하세요。</string>
-    <string name="setting_take_over_title">알림 덮어쓰기</string>
-    <string name="setting_take_over_desc">활성화 시 원래 알림을 버블로 대체합니다. 비활성화 시 둘 다 표시됩니다.</string>
+    <string name="bubble_empty_state">선택된 앱이 없습니다.\n설정에서 앱을 추가하세요.</string>
+    <string name="setting_take_over_title">알림 대체</string>
+    <string name="setting_take_over_desc">기존 알림을 버블로 대체합니다. 해제 시 둘 다 표시됩니다.</string>
     <string name="shortcut_show_bubble">버블 표시</string>
     <string name="tab_unread_messages">읽지 않은 메시지 (%1$d)</string>
     <string name="tab_quick_launch">빠른 실행</string>
     <string name="title_unread_messages">읽지 않은 메시지 목록</string>
     <string name="btn_clear_all">모두 지우기</string>
-    <string name="empty_quick_launch">빠른 실행 앱이 없습니다</string>
+    <string name="empty_quick_launch">실행 가능한 앱이 없습니다</string>
     <string name="action_open_app">앱 열기</string>
-    <string name="desc_enter">열기</string>
+    <string name="desc_enter">입력</string>
     <string name="btn_clear">지우기</string>
-    <string name="about_bug_report">버그 신고</string>
+    <string name="about_bug_report">버그 리포트</string>
     <string name="about_export_logs">로그 내보내기</string>
-    <string name="toast_logs_exported">로그를 내보냈습니다</string>
+    <string name="toast_logs_exported">로그를 성공적으로 내보냈습니다</string>
     <string name="toast_logs_empty">내보낼 로그가 없습니다</string>
     <string name="btn_view_more">더 보기</string>
     <string name="btn_collapse">접기</string>
 </resources>
-
-

@@ -1,50 +1,49 @@
-﻿<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="app_name">Bubble Notice</string>
     <string name="tab_settings">Settings</string>
     <string name="tab_about">About</string>
     <string name="setting_permission_title">Notification Access</string>
-    <string name="setting_permission_granted">Authorized. Bubbles will auto-generate.</string>
-    <string name="setting_permission_denied">Unauthorized. Tap to grant permission.</string>
-    <string name="setting_bubble_title">Enable Console Bubble</string>
-    <string name="setting_bubble_desc">Send a persistent notification to summon the bubble.</string>
-    <string name="setting_auto_jump_title">Auto Jump on Notification Click</string>
-    <string name="setting_auto_jump_desc">When enabled, clicking the bubble notification jumps straight to the app without showing the bubble panel.</string>
-    <string name="setting_apps_title">Manage Favorite Apps</string>
-    <string name="setting_apps_count">%1$d apps selected</string>
+    <string name="setting_permission_granted">Granted. Bubbles will auto-generate.</string>
+    <string name="setting_permission_denied">Denied. Tap to grant access.</string>
+    <string name="setting_bubble_title">Show Bubble</string>
+    <string name="setting_bubble_desc">Keep a persistent notification to show the bubble anytime.</string>
+    <string name="setting_auto_jump_title">Auto Jump</string>
+    <string name="setting_auto_jump_desc">Tap a notification to open the app directly without showing the bubble panel.</string>
+    <string name="setting_apps_title">Subscribed Apps</string>
+    <string name="setting_apps_count">%1$d app(s) selected</string>
     <string name="setting_apps_empty">No apps selected. Tap to add.</string>
-    <string name="selector_title">Subscribe Apps</string>
+    <string name="selector_title">Subscribed Apps</string>
     <string name="selector_done">Done</string>
     <string name="selector_back">Back</string>
     <string name="about_title">About</string>
     <string name="about_version_format">Version %1$s</string>
     <string name="about_developer_label">Developer</string>
     <string name="about_developer_name">Grace Chan</string>
-    <string name="about_project_url">Project URL:</string>
+    <string name="about_project_url">Project URL</string>
     <string name="notif_channel_name">Bubble Notifications</string>
     <string name="notif_channel_name_silent">Bubble Notifications (Silent)</string>
-    <string name="notif_channel_name_alert">Bubble Notifications (Alert)</string>
-    <string name="notification_listener_label">BubbleNotice Notification Listener</string>
+    <string name="notif_channel_name_alert">Bubble Notifications (Alerts)</string>
+    <string name="notification_listener_label">BubbleNotice Listener</string>
     <string name="notif_partner_name">App Center</string>
-    <string name="notif_main_msg">Tap the bubble icon to open the bubble notice console!</string>
+    <string name="notif_main_msg">Tap the bubble icon to open the console!</string>
     <string name="notif_dynamic_msg">Tap to open</string>
-    <string name="bubble_empty_state">No apps selected.\nPlease add them in the main app settings.</string>
+    <string name="bubble_empty_state">No apps selected.\nPlease add apps in settings.</string>
     <string name="setting_take_over_title">Take Over Notifications</string>
-    <string name="setting_take_over_desc">Replace original notifications with bubbles when enabled; show both when disabled.</string>
+    <string name="setting_take_over_desc">Replace original notifications with bubbles. If off, both are shown.</string>
     <string name="shortcut_show_bubble">Show Bubble</string>
-    <string name="tab_unread_messages">Unread Messages (%1$d)</string>
+    <string name="tab_unread_messages">Unread (%1$d)</string>
     <string name="tab_quick_launch">Quick Launch</string>
-    <string name="title_unread_messages">Unread Message List</string>
+    <string name="title_unread_messages">Unread Messages</string>
     <string name="btn_clear_all">Clear All</string>
-    <string name="empty_quick_launch">No Quick Launch Apps</string>
+    <string name="empty_quick_launch">No apps available</string>
     <string name="action_open_app">Open App</string>
     <string name="desc_enter">Enter</string>
     <string name="btn_clear">Clear</string>
     <string name="about_bug_report">Bug Report</string>
     <string name="about_export_logs">Export Logs</string>
     <string name="toast_logs_exported">Logs exported successfully</string>
-    <string name="toast_logs_empty">No logs available to export</string>
+    <string name="toast_logs_empty">No logs available</string>
     <string name="btn_view_more">View More</string>
     <string name="btn_collapse">Collapse</string>
 </resources>
-
-
