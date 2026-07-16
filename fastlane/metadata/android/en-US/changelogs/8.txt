@@ -1,0 +1,4 @@
+<ul>
+<li>Redesign BubbleActivity UI with bottom navigation and swipe-to-delete functionality.</li>
+<li>Enhance BubbleActivity with an integrated app selector and an empty state for unread messages.</li>
+</ul>
