@@ -49,4 +49,5 @@
 
     <string name="setting_group_general">一般</string>
     <string name="setting_group_personalization">個人化</string>
+    <string name="time_just_now">剛剛</string>
 </resources>

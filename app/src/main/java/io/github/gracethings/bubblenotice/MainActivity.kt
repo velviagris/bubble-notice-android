@@ -51,8 +51,11 @@ import io.github.gracethings.bubblenotice.util.AppUtils
 
 class MainActivity : ComponentActivity() {
 
+    private val openSelectorFlow = kotlinx.coroutines.flow.MutableStateFlow(false)
+
     companion object {
         const val ACTION_SHOW_BUBBLE = "io.github.gracethings.bubblenotice.ACTION_SHOW_BUBBLE"
+        const val ACTION_OPEN_SELECTOR = "io.github.gracethings.bubblenotice.ACTION_OPEN_SELECTOR"
 
         fun sendBubbleNotification(context: android.content.Context) {
             val shortcutId = "bubble_notice_shortcut"
@@ -128,6 +131,15 @@ class MainActivity : ComponentActivity() {
             BubbleNoticeTheme {
                 var currentTab by remember { mutableStateOf("settings") }
                 var showSelector by remember { mutableStateOf(false) }
+                val shouldOpenSelector by openSelectorFlow.collectAsState()
+
+                LaunchedEffect(shouldOpenSelector) {
+                    if (shouldOpenSelector) {
+                        showSelector = true
+                        currentTab = "settings"
+                        openSelectorFlow.value = false
+                    }
+                }
 
                 BackHandler(enabled = showSelector) {
                     showSelector = false
@@ -187,6 +199,8 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent?.action == ACTION_SHOW_BUBBLE) {
             sendBubbleNotification(this@MainActivity)
+        } else if (intent?.action == ACTION_OPEN_SELECTOR) {
+            openSelectorFlow.value = true
         }
     }
 

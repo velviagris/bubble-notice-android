@@ -49,4 +49,5 @@
 
     <string name="setting_group_general">General</string>
     <string name="setting_group_personalization">Personalization</string>
+    <string name="time_just_now">Just now</string>
 </resources>

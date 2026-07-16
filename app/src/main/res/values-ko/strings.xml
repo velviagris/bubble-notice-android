@@ -49,4 +49,5 @@
 
     <string name="setting_group_general">일반</string>
     <string name="setting_group_personalization">개인 설정</string>
+    <string name="time_just_now">방금</string>
 </resources>

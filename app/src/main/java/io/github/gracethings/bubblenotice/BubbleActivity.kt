@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,6 +35,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,13 +68,31 @@ import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.text.font.FontWeight
 import io.github.gracethings.bubblenotice.util.UnreadMessageManager
 import io.github.gracethings.bubblenotice.ui.theme.BubbleNoticeTheme
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Chat
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.graphics.Color
+import io.github.gracethings.bubblenotice.util.TimeUtils
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.SpringSpec
 
 data class SenderGroup(
     val packageName: String,
@@ -78,6 +100,8 @@ data class SenderGroup(
     val messages: List<UnreadMessageManager.Message>,
     val latestTimestamp: Long
 )
+
+enum class RevealValue { Default, Revealed }
 
 class BubbleActivity : ComponentActivity() {
 
@@ -95,6 +119,7 @@ class BubbleActivity : ComponentActivity() {
                     val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
                     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                     val coroutineScope = rememberCoroutineScope()
+                    val context = LocalContext.current
 
                     DisposableEffect(lifecycleOwner) {
                         val observer = LifecycleEventObserver { _, event ->
@@ -102,7 +127,7 @@ class BubbleActivity : ComponentActivity() {
                                 val pendingIntent = AppUtils.consumePendingAutoJump()
                                 if (pendingIntent != null) {
                                     coroutineScope.launch {
-                                        kotlinx.coroutines.delay(150) // Wait for bubble expansion animation to finish
+                                        kotlinx.coroutines.delay(150)
                                         try {
                                             AppUtils.sendPendingIntentAllowed(this@BubbleActivity, pendingIntent)
                                             moveTaskToBack(true)
@@ -120,74 +145,106 @@ class BubbleActivity : ComponentActivity() {
                     }
 
                     val messages by UnreadMessageManager.messagesFlow.collectAsState()
-                    var selectedTab by remember { mutableStateOf(0) }
+                    var selectedTab by remember { mutableStateOf(if (messages.isEmpty()) 1 else 0) }
 
-                    // 如果未读消息为空，则强制切换到应用列�?tab / If messages are empty, default to tab 1 (Apps).
-                    val activeTab = if (messages.isEmpty()) 1 else selectedTab
+                    // Sync state if messages list becomes empty/populated? 
+                    // To keep it simple, we only set it on launch. User can switch manually.
 
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        // 仅当有未读消息时才显示选项�?/ Show tabs only when there are unread messages.
-                        if (messages.isNotEmpty()) {
-                            SecondaryTabRow(
-                                selectedTabIndex = activeTab,
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                contentColor = MaterialTheme.colorScheme.primary,
-                                indicator = {
-                                    TabRowDefaults.SecondaryIndicator(
-                                        modifier = Modifier.tabIndicatorOffset(activeTab),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        height = 3.dp
-                                    )
-                                },
-                                divider = {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        
+                        Box(modifier = Modifier.fillMaxSize().padding(bottom = 80.dp)) {
+                            Crossfade(targetState = selectedTab, label = "BubbleTabTransition") { tab ->
+                                when (tab) {
+                                    0 -> UnreadMessagesDashboard(isLandscape = isLandscape)
+                                    1 -> AppSelectionContent(isLandscape)
                                 }
+                            }
+                        }
+
+                        // Bottom Navigation and FAB
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(64.dp)
+                                    .padding(end = 16.dp)
                             ) {
-                                Tab(
-                                    selected = activeTab == 0,
-                                    onClick = { selectedTab = 0 },
-                                    text = {
-                                        Text(
-                                            text = stringResource(R.string.tab_unread_messages, messages.size),
-                                            fontWeight = if (activeTab == 0) FontWeight.Bold else FontWeight.Normal,
-                                            style = MaterialTheme.typography.titleSmall
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(32.dp)
+                                            .width(64.dp)
+                                            .clip(CircleShape)
+                                            .background(if (selectedTab == 0) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+                                            .clickable { selectedTab = 0 },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Chat,
+                                            contentDescription = "Unread Messages",
+                                            tint = if (selectedTab == 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                    },
-                                    selectedContentColor = MaterialTheme.colorScheme.primary,
-                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Tab(
-                                    selected = activeTab == 1,
-                                    onClick = { selectedTab = 1 },
-                                    text = {
-                                        Text(
-                                            text = stringResource(R.string.tab_quick_launch),
-                                            fontWeight = if (activeTab == 1) FontWeight.Bold else FontWeight.Normal,
-                                            style = MaterialTheme.typography.titleSmall
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .height(32.dp)
+                                            .width(64.dp)
+                                            .clip(CircleShape)
+                                            .background(if (selectedTab == 1) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+                                            .clickable { selectedTab = 1 },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Apps,
+                                            contentDescription = "Quick Launch",
+                                            tint = if (selectedTab == 1) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                    },
-                                    selectedContentColor = MaterialTheme.colorScheme.primary,
-                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                }
+                            }
+
+                            FloatingActionButton(
+                                onClick = {
+                                    if (selectedTab == 0) {
+                                        UnreadMessageManager.clearAll()
+                                    } else {
+                                        val intent = Intent(context, MainActivity::class.java).apply {
+                                            action = MainActivity.ACTION_OPEN_SELECTOR
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        }
+                                        context.startActivity(intent)
+                                        moveTaskToBack(true)
+                                    }
+                                },
+                                shape = CircleShape,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Icon(
+                                    imageVector = if (selectedTab == 0) Icons.Default.ClearAll else Icons.Default.Add,
+                                    contentDescription = if (selectedTab == 0) "Clear All" else "Add App"
                                 )
                             }
                         }
 
-                        // 带动画切换面板和选择�?/ Animate content switching.
-                        Crossfade(targetState = activeTab, label = "BubbleTabTransition") { tab ->
-                            when (tab) {
-                                0 -> UnreadMessagesDashboard(
-                                    isLandscape = isLandscape
-                                )
-                                1 -> AppSelectionContent(isLandscape)
-                            }
-                        }
                     }
                 }
             }
         }
     }
 
-    // 气泡后台再次打开 / Called when the background bubble is opened again.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
@@ -203,10 +260,9 @@ class BubbleActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
     @Composable
-    private fun UnreadMessagesDashboard(
-        isLandscape: Boolean
-    ) {
+    private fun UnreadMessagesDashboard(isLandscape: Boolean) {
         val context = LocalContext.current
         val messages by UnreadMessageManager.messagesFlow.collectAsState()
 
@@ -239,7 +295,6 @@ class BubbleActivity : ComponentActivity() {
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // 顶部操作�?/ Top bar
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -253,178 +308,276 @@ class BubbleActivity : ComponentActivity() {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                TextButton(
-                    onClick = { UnreadMessageManager.clearAll() },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = stringResource(R.string.btn_clear_all),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.btn_clear_all),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 未读消息列表 / Scrollable list of groups
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp) // M3e minimal gap
             ) {
-                items(grouped) { group ->
-                    MessageGroupCard(group = group)
+                itemsIndexed(grouped, key = { _, group -> group.packageName + group.senderName }) { index, group ->
+                    val isFirst = index == 0
+                    val isLast = index == grouped.size - 1
+
+                    val shape = RoundedCornerShape(
+                        topStart = if (isFirst) 24.dp else 4.dp,
+                        topEnd = if (isFirst) 24.dp else 4.dp,
+                        bottomStart = if (isLast) 24.dp else 4.dp,
+                        bottomEnd = if (isLast) 24.dp else 4.dp
+                    )
+
+                    MessageGroupCard(
+                        group = group, 
+                        shape = shape,
+                        modifier = Modifier.animateItem(
+                            placementSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+    @Composable
+    private fun MessageGroupCard(group: SenderGroup, shape: RoundedCornerShape, modifier: Modifier = Modifier) {
+        val context = LocalContext.current
+        var expanded by remember { mutableStateOf(false) }
+        val visibleMessages = if (expanded) group.messages else group.messages.take(3)
+        val coroutineScope = rememberCoroutineScope()
+
+        val density = LocalDensity.current
+        val revealOffset = with(density) { -100.dp.toPx() }
+        
+        val offsetX = remember { androidx.compose.animation.core.Animatable(0f) }
+        val scope = rememberCoroutineScope()
+
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(shape)
+        ) {
+            // Background Action (Delete)
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .clickable { 
+                        coroutineScope.launch {
+                            offsetX.animateTo(0f, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium))
+                            UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
+                        }
+                    }
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DeleteSweep,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            // Foreground Content
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset { androidx.compose.ui.unit.IntOffset(offsetX.value.toInt(), 0) }
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures(
+                            onDragEnd = {
+                                scope.launch {
+                                    if (offsetX.value < revealOffset / 2) {
+                                        offsetX.animateTo(revealOffset, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium))
+                                    } else {
+                                        offsetX.animateTo(0f, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium))
+                                    }
+                                }
+                            },
+                            onDragCancel = {
+                                scope.launch {
+                                    offsetX.animateTo(0f, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium))
+                                }
+                            },
+                            onHorizontalDrag = { change, dragAmount ->
+                                change.consume()
+                                scope.launch {
+                                    val newOffset = (offsetX.value + dragAmount).coerceIn(revealOffset, 0f)
+                                    offsetX.snapTo(newOffset)
+                                }
+                            }
+                        )
+                    }
+                    .clickable {
+                        val pendingIntent = group.messages.firstOrNull()?.contentIntent
+                        if (pendingIntent != null) {
+                            AppUtils.sendPendingIntentAllowed(context, pendingIntent)
+                        } else {
+                            val launchIntent = context.packageManager.getLaunchIntentForPackage(group.packageName)
+                            if (launchIntent != null) {
+                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(launchIntent)
+                            }
+                        }
+                        UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
+                        (context as? android.app.Activity)?.moveTaskToBack(true)
+                    }
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    ),
+                shape = shape,
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp)
+                ) {
+                    // Sender details header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val appIcon = remember(group.packageName) {
+                            try {
+                                context.packageManager.getApplicationIcon(group.packageName).toBitmap(96, 96).asImageBitmap()
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                        if (appIcon != null) {
+                            Image(
+                                bitmap = appIcon,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                        }
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = group.senderName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            val appName = remember(group.packageName) {
+                                AppUtils.getAppName(context, group.packageName)
+                            }
+                            Text(
+                                text = appName,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = {
+                                UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
+                            },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.btn_clear),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Message Bubbles
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        visibleMessages.forEach { msg ->
+                            SingleMessageView(msg)
+                        }
+                    }
+
+                    // Expand/Collapse Button
+                    if (group.messages.size > 3) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        TextButton(
+                            onClick = { expanded = !expanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (expanded) stringResource(R.string.btn_collapse) else stringResource(R.string.btn_view_more),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Icon(
+                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .size(18.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 
     @Composable
-    private fun MessageGroupCard(group: SenderGroup) {
+    private fun SingleMessageView(msg: UnreadMessageManager.Message) {
+        var msgExpanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
-        var expanded by remember { mutableStateOf(false) }
-        val visibleMessages = if (expanded) group.messages else group.messages.take(3)
 
-        OutlinedCard(
+        Box(
             modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 16.dp,
+                        bottomEnd = 16.dp,
+                        bottomStart = 16.dp
+                    )
+                )
+                .clickable { msgExpanded = !msgExpanded }
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+                .padding(horizontal = 14.dp, vertical = 8.dp)
                 .fillMaxWidth()
-                .clickable {
-                    val pendingIntent = group.messages.firstOrNull()?.contentIntent
-                    if (pendingIntent != null) {
-                        AppUtils.sendPendingIntentAllowed(context, pendingIntent)
-                    } else {
-                        val launchIntent = context.packageManager.getLaunchIntentForPackage(group.packageName)
-                        if (launchIntent != null) {
-                            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(launchIntent)
-                        }
-                    }
-                    UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
-                    (context as? android.app.Activity)?.moveTaskToBack(true)
-                }
-                .animateContentSize(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.outlinedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            )
         ) {
-            Column(
-                modifier = Modifier.padding(14.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                // Sender details header
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    val appIcon = remember(group.packageName) {
-                        try {
-                            context.packageManager.getApplicationIcon(group.packageName).toBitmap(96, 96).asImageBitmap()
-                        } catch (e: Exception) {
-                            null
-                        }
-                    }
-                    if (appIcon != null) {
-                        Image(
-                            bitmap = appIcon,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                    }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = group.senderName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        val appName = remember(group.packageName) {
-                            AppUtils.getAppName(context, group.packageName)
-                        }
-                        Text(
-                            text = appName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
-                        },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.btn_clear),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Message Bubbles
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    visibleMessages.forEach { msg ->
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(
-                                        topStart = 4.dp,
-                                        topEnd = 16.dp,
-                                        bottomEnd = 16.dp,
-                                        bottomStart = 16.dp
-                                    )
-                                )
-                                .padding(horizontal = 14.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = msg.messageText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                // Expand/Collapse Button
-                if (group.messages.size > 3) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TextButton(
-                        onClick = { expanded = !expanded },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = if (expanded) stringResource(R.string.btn_collapse) else stringResource(R.string.btn_view_more),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Icon(
-                            imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .size(18.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = msg.messageText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = if (msgExpanded) Int.MAX_VALUE else 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = TimeUtils.formatMessageTime(context, msg.timestamp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -437,10 +590,8 @@ class BubbleActivity : ComponentActivity() {
         val context = LocalContext.current
         val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-        // 刷新触发�?/ Refresh trigger for app list reloads.
         var refreshTrigger by remember { mutableStateOf(0) }
 
-        // 监听气泡展开 / Increment the trigger whenever the bubble resumes.
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
@@ -453,7 +604,6 @@ class BubbleActivity : ComponentActivity() {
             }
         }
 
-        // 回到前台时刷新应用列�?/ Reload selected apps whenever the bubble returns to foreground.
         LaunchedEffect(refreshTrigger) {
             isLoading = true
             val selectedPackages = AppUtils.getSelectedApps(context)
@@ -548,7 +698,4 @@ class BubbleActivity : ComponentActivity() {
             }
         }
     }
-
-
 }
-

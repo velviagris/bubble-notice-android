@@ -49,4 +49,5 @@
 
     <string name="setting_group_general">一般</string>
     <string name="setting_group_personalization">カスタマイズ</string>
+    <string name="time_just_now">たった今</string>
 </resources>

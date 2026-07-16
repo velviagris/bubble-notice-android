@@ -49,5 +49,6 @@
 
     <string name="setting_group_general">常规</string>
     <string name="setting_group_personalization">个性化</string>
+    <string name="time_just_now">刚刚</string>
 </resources>
 
