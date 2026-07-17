@@ -104,7 +104,8 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                     lastMessageText = text
                     lastEventTime = msgTime
                     isBubbleDismissed = false
-                    UnreadMessageManager.addMessage(pkg, title, text, msgTime, originalIntent)
+                    val actions = notification.actions?.toList() ?: emptyList()
+                    UnreadMessageManager.addMessage(pkg, title, text, msgTime, originalIntent, actions)
                     
                     if (AppUtils.isAutoJumpEnabled(this@BubbleNotificationListenerService)) {
                         AppUtils.setPendingAutoJump(originalIntent)

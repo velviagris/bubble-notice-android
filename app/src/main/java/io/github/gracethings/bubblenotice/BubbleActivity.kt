@@ -15,6 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package io.github.gracethings.bubblenotice
+import android.app.RemoteInput
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.draw.scale
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -551,6 +560,8 @@ class BubbleActivity : ComponentActivity() {
     private fun SingleMessageView(msg: UnreadMessageManager.Message) {
         var msgExpanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
+        var showReplyBoxForAction by remember { mutableStateOf<android.app.Notification.Action?>(null) }
+        var replyText by remember { mutableStateOf("") }
 
         Box(
             modifier = Modifier
@@ -573,28 +584,115 @@ class BubbleActivity : ComponentActivity() {
                 .padding(horizontal = 14.dp, vertical = 8.dp)
                 .fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = msg.messageText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = if (msgExpanded) Int.MAX_VALUE else 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = TimeUtils.formatMessageTime(context, msg.timestamp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = msg.messageText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = if (msgExpanded) Int.MAX_VALUE else 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = TimeUtils.formatMessageTime(context, msg.timestamp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (msgExpanded && msg.actions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(msg.actions) { action ->
+                            val title = action.title?.toString() ?: "Action"
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                modifier = Modifier.clickable {
+                                    val remoteInputs = action.remoteInputs
+                                    if (!remoteInputs.isNullOrEmpty()) {
+                                        showReplyBoxForAction = action
+                                    } else {
+                                        try {
+                                            action.actionIntent.send()
+                                            UnreadMessageManager.removeMessage(msg)
+                                        } catch(e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (showReplyBoxForAction != null) {
+                    val action = showReplyBoxForAction!!
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = replyText,
+                            onValueChange = { replyText = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("Reply...", style = MaterialTheme.typography.bodySmall) },
+                            textStyle = MaterialTheme.typography.bodySmall,
+                            singleLine = true,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(40.dp).clickable {
+                                val remoteInputs = action.remoteInputs
+                                if (!remoteInputs.isNullOrEmpty()) {
+                                    val intent = android.content.Intent()
+                                    val bundle = android.os.Bundle()
+                                    for (ri in remoteInputs) {
+                                        bundle.putCharSequence(ri.resultKey, replyText)
+                                    }
+                                    RemoteInput.addResultsToIntent(remoteInputs, intent, bundle)
+                                    try {
+                                        action.actionIntent.send(context, 0, intent)
+                                        UnreadMessageManager.removeMessage(msg)
+                                    } catch(e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                                showReplyBoxForAction = null
+                                replyText = ""
+                            }
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Default.Send,
+                                    contentDescription = "Send",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
-    }
+    }    }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -853,4 +951,3 @@ class BubbleActivity : ComponentActivity() {
             )
         }
     }
-}

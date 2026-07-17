@@ -28,7 +28,8 @@ object UnreadMessageManager {
         val senderName: String,
         val messageText: String,
         val timestamp: Long,
-        val contentIntent: android.app.PendingIntent? = null
+        val contentIntent: android.app.PendingIntent? = null,
+        val actions: List<android.app.Notification.Action> = emptyList()
     )
 
     private val _messagesFlow = MutableStateFlow<List<Message>>(emptyList())
@@ -36,7 +37,7 @@ object UnreadMessageManager {
 
     private val messagesList = mutableListOf<Message>()
 
-    fun addMessage(packageName: String, senderName: String, messageText: String, timestamp: Long, contentIntent: android.app.PendingIntent? = null) {
+    fun addMessage(packageName: String, senderName: String, messageText: String, timestamp: Long, contentIntent: android.app.PendingIntent? = null, actions: List<android.app.Notification.Action> = emptyList()) {
         synchronized(messagesList) {
             // 避免在短时间内添加完全相同的重复消息 / Avoid adding identical duplicate messages in quick succession.
             val isDuplicate = messagesList.any { 
@@ -46,12 +47,19 @@ object UnreadMessageManager {
                 true 
             }
             if (!isDuplicate) {
-                messagesList.add(Message(packageName, senderName, messageText, timestamp, contentIntent))
+                messagesList.add(Message(packageName, senderName, messageText, timestamp, contentIntent, actions))
                 _messagesFlow.value = ArrayList(messagesList)
             }
         }
     }
 
+
+    fun removeMessage(message: Message) {
+        synchronized(messagesList) {
+            messagesList.remove(message)
+            _messagesFlow.value = ArrayList(messagesList)
+        }
+    }
     fun clearMessagesForSender(packageName: String, senderName: String) {
         synchronized(messagesList) {
             messagesList.removeAll { it.packageName == packageName && it.senderName == senderName }
