@@ -60,6 +60,7 @@ fun AppSelectorScreen(onBack: () -> Unit) {
 
     var appList by remember { mutableStateOf<List<AppItem>>(emptyList()) }
     var selectedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var initialSelectedPackages by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isLoading by remember { mutableStateOf(!isPreview) }
     
     var searchQuery by remember { mutableStateOf("") }
@@ -68,7 +69,9 @@ fun AppSelectorScreen(onBack: () -> Unit) {
     LaunchedEffect(Unit) {
         if (!isPreview) {
             appList = AppUtils.loadInstalledApps(context)
-            selectedPackages = AppUtils.getSelectedApps(context)
+            val currentSelected = AppUtils.getSelectedApps(context)
+            selectedPackages = currentSelected
+            initialSelectedPackages = currentSelected
             isLoading = false
         } else {
             // Preview data
@@ -83,7 +86,7 @@ fun AppSelectorScreen(onBack: () -> Unit) {
     val hasWorkApps = remember(appList) { appList.any { it.isWorkProfile } }
     
     // Filter by tab and search
-    val displayedApps = remember(appList, selectedPackages, selectedTab, searchQuery, hasWorkApps) {
+    val displayedApps = remember(appList, initialSelectedPackages, selectedTab, searchQuery, hasWorkApps) {
         val filtered = appList.filter { app ->
             val matchTab = if (!hasWorkApps) true else {
                 if (selectedTab == 0) !app.isWorkProfile else app.isWorkProfile
@@ -92,7 +95,7 @@ fun AppSelectorScreen(onBack: () -> Unit) {
             matchTab && matchSearch
         }
         
-        val (selected, unselected) = filtered.partition { selectedPackages.contains(it.packageName) }
+        val (selected, unselected) = filtered.partition { initialSelectedPackages.contains(it.id) }
         
         // Sort alphabetically
         val sortedSelected = selected.sortedBy { it.name }
@@ -202,7 +205,7 @@ fun AppSelectorScreen(onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     itemsIndexed(displayedApps) { _, app ->
-                        val isSelected = selectedPackages.contains(app.packageName)
+                        val isSelected = selectedPackages.contains(app.id)
                         Card(
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
@@ -214,7 +217,7 @@ fun AppSelectorScreen(onBack: () -> Unit) {
                                 .clip(RoundedCornerShape(16.dp))
                                 .clickable {
                                     val newSelection = selectedPackages.toMutableSet()
-                                    if (isSelected) newSelection.remove(app.packageName) else newSelection.add(app.packageName)
+                                    if (isSelected) newSelection.remove(app.id) else newSelection.add(app.id)
                                     selectedPackages = newSelection
                                     if (!isPreview) {
                                         AppUtils.saveSelectedApps(context, newSelection)

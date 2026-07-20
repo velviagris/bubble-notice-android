@@ -726,7 +726,7 @@ class BubbleActivity : ComponentActivity() {
             pinnedPackages = AppUtils.getPinnedApps(context)
             
             val hasShown = AppUtils.hasShownPinTutorial(context)
-            val unpinnedAppsCount = filteredAppList.count { !pinnedPackages.contains(it.packageName) }
+            val unpinnedAppsCount = filteredAppList.count { !pinnedPackages.contains(it.id) }
             if (!hasShown && unpinnedAppsCount > 0 && pinnedPackages.isEmpty()) {
                 showPinTutorial = true
             }
@@ -768,7 +768,7 @@ class BubbleActivity : ComponentActivity() {
                 )
             }
         } else {
-            val (pinned, unpinned) = filteredAppList.partition { pinnedPackages.contains(it.packageName) }
+            val (pinned, unpinned) = filteredAppList.partition { pinnedPackages.contains(it.id) }
             val pinnedApps = pinned.sortedBy { it.name }
             val unpinnedApps = unpinned.sortedBy { it.name }
 
@@ -789,7 +789,7 @@ class BubbleActivity : ComponentActivity() {
                         )
                     }
                     
-                    items(pinnedApps, key = { "pinned_${it.packageName}" }) { app ->
+                    items(pinnedApps, key = { "pinned_${it.id}" }) { app ->
                         AppGridItem(
                             app = app,
                             isPinned = true,
@@ -812,7 +812,7 @@ class BubbleActivity : ComponentActivity() {
                     }
                 }
 
-                itemsIndexed(unpinnedApps, key = { _, app -> "unpinned_${app.packageName}" }) { index, app ->
+                itemsIndexed(unpinnedApps, key = { _, app -> "unpinned_${app.id}" }) { index, app ->
                     val isTutorialTarget = index == 0 && showPinTutorial
                     AppGridItem(
                         app = app,
@@ -886,7 +886,7 @@ class BubbleActivity : ComponentActivity() {
                     },
                     onLongClick = {
                         val newSelection = pinnedPackages.toMutableSet()
-                        if (isPinned) newSelection.remove(app.packageName) else newSelection.add(app.packageName)
+                        if (isPinned) newSelection.remove(app.id) else newSelection.add(app.id)
                         onPinnedChange(newSelection)
                     }
                 )

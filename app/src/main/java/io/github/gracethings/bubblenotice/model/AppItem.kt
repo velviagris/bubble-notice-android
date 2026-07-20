@@ -23,4 +23,6 @@ data class AppItem(
     val packageName: String,
     val icon: Drawable,
     val isWorkProfile: Boolean = false
-)
+) {
+    val id: String get() = "$packageName:${if (isWorkProfile) 1 else 0}"
+}

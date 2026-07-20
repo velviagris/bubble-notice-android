@@ -57,7 +57,8 @@ object AppUtils {
     // 读取已置顶应用包名
     fun getPinnedApps(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_PINNED_APPS, emptySet()) ?: emptySet()
+        val raw = prefs.getStringSet(KEY_PINNED_APPS, emptySet()) ?: emptySet()
+        return raw.map { if (it.contains(":")) it else "$it:0" }.toSet()
     }
 
     // 保存已置顶应用包名
@@ -66,10 +67,11 @@ object AppUtils {
         prefs.edit().putStringSet(KEY_PINNED_APPS, packages).apply()
     }
 
-    // 读取已选应用包?/ Read saved selected package names.
+        // 读取已选应用包?/ Read saved selected package names.
     fun getSelectedApps(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
+        val raw = prefs.getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
+        return raw.map { if (it.contains(":")) it else "$it:0" }.toSet()
     }
 
     // 保存已选应用包?/ Save package names selected by the user.
@@ -149,32 +151,47 @@ object AppUtils {
         }
     }
 
-    // 加载已选应�?/ Load only selected apps.
-    suspend fun loadSelectedAppsOnly(context: Context, packageNames: Set<String>): List<AppItem> = withContext(Dispatchers.IO) {
-        val pm = context.packageManager
+    // 加载已选应?/ Load only selected apps.
+    suspend fun loadSelectedAppsOnly(context: Context, identifiers: Set<String>): List<AppItem> = withContext(Dispatchers.IO) {
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+        val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+        val density = context.resources.displayMetrics.densityDpi
         val result = mutableListOf<AppItem>()
 
-        for (pkg in packageNames) {
-            try {
-                // 精准读取指定包名 / Read only the requested package info.
-                val info = pm.getApplicationInfo(pkg, 0)
-                result.add(
-                    AppItem(
-                        name = pm.getApplicationLabel(info).toString(),
-                        packageName = pkg,
-                        icon = pm.getApplicationIcon(info)
-                    )
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                // 忽略已卸载应�?/ Ignore packages that no longer exist.
-                e.printStackTrace()
+        val profiles = userManager.userProfiles
+        for (identifier in identifiers) {
+            val parts = identifier.split(":")
+            val pkg = parts[0]
+            val isWork = if (parts.size > 1) parts[1] == "1" else false
+
+            val targetProfile = profiles.firstOrNull { profile ->
+                val profileIsWork = profile != android.os.Process.myUserHandle()
+                profileIsWork == isWork
+            }
+
+            if (targetProfile != null) {
+                try {
+                    val activities = launcherApps.getActivityList(pkg, targetProfile)
+                    if (activities.isNotEmpty()) {
+                        val activity = activities[0]
+                        result.add(
+                            AppItem(
+                                name = activity.label.toString(),
+                                packageName = pkg,
+                                icon = activity.getBadgedIcon(density),
+                                isWorkProfile = isWork
+                            )
+                        )
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
-        // 按名称排�?/ Return sorted by app name.
         result.sortedBy { it.name }
     }
 
-    // 读取自动跳转开�?/ Read the auto jump toggle.
+    // 读取自动跳转开?/ Read the auto jump toggle.
     fun isAutoJumpEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_AUTO_JUMP, false)
