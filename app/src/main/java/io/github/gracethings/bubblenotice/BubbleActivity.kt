@@ -432,7 +432,10 @@ class BubbleActivity : ComponentActivity() {
                             }
                         }
                         UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
-                        (context as? android.app.Activity)?.moveTaskToBack(true)
+                        coroutineScope.launch {
+                            kotlinx.coroutines.delay(100)
+                            (context as? android.app.Activity)?.moveTaskToBack(true)
+                        }
                     },
                 shape = shape,
                 color = MaterialTheme.colorScheme.surfaceVariant
@@ -502,27 +505,7 @@ class BubbleActivity : ComponentActivity() {
                         }
                     }
 
-                    // Expand/Collapse Button
-                    if (group.messages.size > 3) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        TextButton(
-                            onClick = { expanded = !expanded },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = if (expanded) stringResource(R.string.btn_collapse) else stringResource(R.string.btn_view_more),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Icon(
-                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(start = 4.dp)
-                                    .size(18.dp)
-                            )
-                        }
-                    }
+
                 }
             }
         }
@@ -566,7 +549,7 @@ class BubbleActivity : ComponentActivity() {
                         text = msg.messageText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = if (msgExpanded) Int.MAX_VALUE else 2,
+                        maxLines = if (msgExpanded) Int.MAX_VALUE else 3,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )

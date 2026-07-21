@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2026 Grace Chan <velviagris@outlook.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -39,17 +39,24 @@ object UnreadMessageManager {
 
     fun addMessage(packageName: String, senderName: String, messageText: String, timestamp: Long, contentIntent: android.app.PendingIntent? = null, actions: List<android.app.Notification.Action> = emptyList()) {
         synchronized(messagesList) {
-            // 避免在短时间内添加完全相同的重复消息 / Avoid adding identical duplicate messages in quick succession.
-            val isDuplicate = messagesList.any { 
-                it.packageName == packageName && 
-                it.senderName == senderName && 
-                it.messageText == messageText && 
-                true 
+            val existingIndex = messagesList.indexOfFirst { it.packageName == packageName && it.senderName == senderName }
+            val newMessage = Message(packageName, senderName, messageText, timestamp, contentIntent, actions)
+            if (existingIndex != -1) {
+                // To mimic native Android stacked notifications, we replace the existing message from this sender.
+                // For MessagingStyle apps (Google Chat), the new messageText contains the full history (1\n1\n1).
+                // For WeChat, the new messageText is the summary ([3条]AAA: 1).
+                val oldMessage = messagesList[existingIndex]
+                val mergedIntent = contentIntent ?: oldMessage.contentIntent
+                val mergedActions = if (actions.isNotEmpty()) actions else oldMessage.actions
+                
+                messagesList[existingIndex] = newMessage.copy(
+                    contentIntent = mergedIntent,
+                    actions = mergedActions
+                )
+            } else {
+                messagesList.add(newMessage)
             }
-            if (!isDuplicate) {
-                messagesList.add(Message(packageName, senderName, messageText, timestamp, contentIntent, actions))
-                _messagesFlow.value = ArrayList(messagesList)
-            }
+            _messagesFlow.value = ArrayList(messagesList)
         }
     }
 

@@ -53,4 +53,7 @@
     <string name="msg_all_caught_up">すべての通知を確認しました</string>
     <string name="title_pinned_apps">固定されたアプリ</string>
     <string name="pin_tutorial_text">💡 アプリアイコンを長押しして固定します</string>
+    <string name="default_action">アクション</string>
+    <string name="reply_placeholder">返信する...</string>
+    <string name="send_action">送信</string>
 </resources>

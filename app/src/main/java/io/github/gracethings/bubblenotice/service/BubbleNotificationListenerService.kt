@@ -47,11 +47,15 @@ class BubbleNotificationListenerService : NotificationListenerService() {
     companion object {
         private const val MAIN_BUBBLE_NOTIFICATION_ID = 1001
 
-        // 用于判断是否为新消息的追踪变�?/ Track variables to determine if it is a new message.
-        private var lastMessagePkg: String? = null
-        private var lastMessageTitle: String? = null
-        private var lastMessageText: String? = null
-        private var lastEventTime: Long = 0L
+        data class PackageState(
+            val title: String,
+            val text: String,
+            val msgTime: Long,
+            val styleTime: Long,
+            val messageCount: Int
+        )
+
+        private val packageStateMap = mutableMapOf<String, PackageState>()
         private var isBubbleDismissed = false
     }
 
@@ -82,13 +86,33 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 val appName = AppUtils.getAppName(this@BubbleNotificationListenerService, pkg)
                 val extras = notification.extras
                 val title = extras.getString(Notification.EXTRA_TITLE) ?: appName
-                val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
+                var text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
 
-                // 提取通知时间戳进行比�?/ Extract timestamp for comparison.
-                val msgTime = if (notification.`when` != 0L) notification.`when` else sbn.postTime
+                val messagingStyle = androidx.core.app.NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
+                val lastStyleMessage = messagingStyle?.messages?.lastOrNull()
+                val styleTime = lastStyleMessage?.timestamp ?: 0L
+                val messageCount = messagingStyle?.messages?.size ?: -1
+                
+                // Extract full text if MessagingStyle exists to mimic native stacked notifications
+                if (messagingStyle != null && messagingStyle.messages.isNotEmpty()) {
+                    text = messagingStyle.messages.joinToString("\n") { it.text ?: "" }
+                }
 
-                  val isSameContent = pkgId == lastMessagePkg && title == lastMessageTitle && text == lastMessageText
-                  val isNewMessage = !isSameContent
+                // 提取通知时间戳进行比较 / Extract timestamp for comparison.
+                val msgTime = if (styleTime != 0L) styleTime else if (notification.`when` != 0L) notification.`when` else sbn.postTime
+
+                val lastState = packageStateMap[pkgId]
+                val isSameContent = if (lastState != null) {
+                    if (messageCount != -1 && lastState.messageCount != -1) {
+                        lastState.messageCount == messageCount && lastState.styleTime == styleTime && lastState.text == text
+                    } else {
+                        lastState.title == title && lastState.text == text && lastState.msgTime == msgTime
+                    }
+                } else false
+
+                val isNewMessage = !isSameContent
+
+                AppLogger.d("BubbleService", "Received notification: pkg=$pkgId, title=$title, text=$text, msgTime=$msgTime, styleTime=$styleTime, messageCount=$messageCount, isSameContent=$isSameContent, lastState=$lastState")
 
                 val originalIntent = notification.contentIntent
                 val originalSmallIcon = notification.smallIcon
@@ -96,14 +120,12 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 // Extract avatar (largeIcon) or MessagingStyle person icon
                 var originalLargeIcon = notification.getLargeIcon()
                 if (originalLargeIcon == null) {
-                    // Try to extract from MessagingStyle
-                    val messagingStyle = androidx.core.app.NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)
-                    messagingStyle?.messages?.lastOrNull()?.person?.icon?.let { iconCompat ->
+                    lastStyleMessage?.person?.icon?.let { iconCompat ->
                         originalLargeIcon = iconCompat.toIcon(this@BubbleNotificationListenerService)
                     }
                 }
 
-                // 如果用户已经手动移除了当前气泡，且没有新消息，则不重新显示气�?/ If user dismissed the bubble and no new message, do not show again.
+                // 如果用户已经手动移除了当前气泡，且没有新消息，则不重新显示气泡 / If user dismissed the bubble and no new message, do not show again.
                 if (isBubbleDismissed && !isNewMessage) {
                     AppLogger.d("BubbleService", "Ignored notification from $pkg: Bubble was dismissed and no new message.")
                     return@launch
@@ -113,10 +135,7 @@ class BubbleNotificationListenerService : NotificationListenerService() {
                 val actions = notification.actions?.toList() ?: emptyList()
                 if (isNewMessage) {
                     AppLogger.i("BubbleService", "New message detected from $pkg")
-                    lastMessagePkg = pkgId
-                    lastMessageTitle = title
-                    lastMessageText = text
-                    lastEventTime = msgTime
+                    packageStateMap[pkgId] = PackageState(title, text, msgTime, styleTime, messageCount)
                     isBubbleDismissed = false
                     UnreadMessageManager.addMessage(pkgId, title, text, msgTime, originalIntent, actions)
                     
