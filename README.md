@@ -33,19 +33,15 @@ A lightweight bubble notice tool, providing more intuitive notifications for the
 
 ### Screenshot Comparison
 
-| Original Notifications                                                   | Bubble Notice Activated                                                     |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| <img src="screenshots/original-notification.png" width="300" /> | <img src="screenshots/bubble-notice-activated.png" width="300" /> |
+| Original Notifications | Bubble Notice Activated |
+|---|---|
+| <img src="screenshots/original-notification.png" width="200" /> | <img src="screenshots/bubble-notice-activated.png" width="200" /> |
 
 ### GIF Comparison
 
-| Original Notifications                                                   | Bubble Notice Activated                                                     |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| <img src="screenshots/original-notification.gif" width="300" /> | <img src="screenshots/bubble-notice-activated.gif" width="300" /> |
-
-| Unread Messages                                           | Auto Jump                                           |
-|-----------------------------------------------------------|-----------------------------------------------------|
-| <img src="screenshots/unread-messages.gif" width="300" /> | <img src="screenshots/auto-jump.gif" width="300" /> |
+| Original Notifications | Bubble Notice Activated | Unread Messages | Auto Jump |
+|---|---|---|---|
+| <img src="screenshots/original-notification.gif" width="200" /> | <img src="screenshots/bubble-notice-activated.gif" width="20" /> |<img src="screenshots/unread-messages.gif" width="200" /> | <img src="screenshots/auto-jump.gif" width="200" /> |
 
 ## Features
 
