@@ -37,11 +37,11 @@ A lightweight bubble notice tool, providing more intuitive notifications for the
 |---|---|
 | <img src="screenshots/original-notification.png" width="200" /> | <img src="screenshots/bubble-notice-activated.png" width="200" /> |
 
-### GIF Comparison
+### GIF Comparison && Feature Demos
 
 | Original Notifications | Bubble Notice Activated | Unread Messages | Auto Jump |
 |---|---|---|---|
-| <img src="screenshots/original-notification.gif" width="200" /> | <img src="screenshots/bubble-notice-activated.gif" width="20" /> |<img src="screenshots/unread-messages.gif" width="200" /> | <img src="screenshots/auto-jump.gif" width="200" /> |
+| <img src="screenshots/original-notification.gif" width="200" /> | <img src="screenshots/bubble-notice-activated.gif" width="20" /> | <img src="screenshots/unread-messages.gif" width="200" /> | <img src="screenshots/auto-jump.gif" width="200" /> |
 
 ## Features
 
