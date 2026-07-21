@@ -43,13 +43,19 @@ A lightweight bubble notice tool, providing more intuitive notifications for the
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | <img src="screenshots/original-notification.gif" width="300" /> | <img src="screenshots/bubble-notice-activated.gif" width="300" /> |
 
+| Unread Messages                                           | Auto Jump                                           |
+|-----------------------------------------------------------|-----------------------------------------------------|
+| <img src="screenshots/unread-messages.gif" width="300" /> | <img src="screenshots/auto-jump.gif" width="300" /> |
+
 ## Features
 
-- Subscribe to your favorite apps
-- Show persistent message bubbles for incoming notifications
-- Aggregate unread messages in a unified bubble console
-- Directly jump to specific chat pages when tapping notifications or unread cards
-- Dismiss bubbles to avoid distractions
+- **Stay Focused**: Subscribe to your favorite or frequently used apps.
+- **Bubble Notifications**: Generate persistent system-level message bubbles for incoming notifications so you never miss important updates.
+- **Smart Stacking & Expansion**: Intelligently merge consecutive notifications from the same app. Defaults to a compact view, and expands to reveal the full text and native shortcut actions upon tapping.
+- **Quick Reply & Actions**: Seamlessly inherit native notification quick actions (like Mark as Read or Inline Reply) and handle them directly within the bubble console.
+- **One-Tap Jump**: Tap the header or background of an unread card to instantly jump directly to the specific chat page within the app.
+- **Centralized Dashboard**: Aggregate and manage all your unread messages efficiently in a unified bubble console.
+- **Distraction-Free**: Easily dismiss bubbles anytime to maintain focus.
 
 ## Install from Google Play
 
