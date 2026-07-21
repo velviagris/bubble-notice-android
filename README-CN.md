@@ -33,19 +33,15 @@
 
 ### 截图对比
 
-| 原生通知                                                                     | 启用气泡通知                                                                      |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| <img src="screenshots/original-notification.png" width="300" /> | <img src="screenshots/bubble-notice-activated.png" width="300" /> |
+| 原生通知 | 启用气泡通知 |
+|---|---|
+| <img src="screenshots/original-notification.png" width="200" /> | <img src="screenshots/bubble-notice-activated.png" width="200" /> |
 
-### 动图对比
+### 动图对比与功能演示
 
-| 原生通知                                                            | 启用气泡通知                                                                      |
-|-----------------------------------------------------------------|-----------------------------------------------------------------------------|
-| <img src="screenshots/original-notification.gif" width="300" /> | <img src="screenshots/bubble-notice-activated.gif" width="300" /> |
-
-| 未读通知                                                      | 自动跳转                                                |
-|-----------------------------------------------------------|-----------------------------------------------------|
-| <img src="screenshots/unread-messages.gif" width="300" /> | <img src="screenshots/auto-jump.gif" width="300" /> |
+| 原生通知 | 启用气泡通知 | 未读通知 | 自动跳转 |
+|---|---|---|---|
+| <img src="screenshots/original-notification.gif" width="200" /> | <img src="screenshots/bubble-notice-activated.gif" width="20" /> | <img src="screenshots/unread-messages.gif" width="200" /> | <img src="screenshots/auto-jump.gif" width="200" /> |
 
 ## 功能
 
