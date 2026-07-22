@@ -14,6 +14,7 @@
   <a href="https://github.com/GraceThings/bubble-notice-android/releases/latest">
     <img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">
   </a>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/github/downloads/GraceThings/bubble-notice-android/total" alt="Downloads"/>
@@ -37,7 +38,7 @@
 |---|---|
 | <img src="screenshots/original-notification.png" width="200" /> | <img src="screenshots/bubble-notice-activated.png" width="200" /> |
 
-### 动图对比与功能演示
+### 动图对比 && 功能演示
 
 | 原生通知 | 启用气泡通知 | 未读通知 | 自动跳转 |
 |---|---|---|---|
@@ -45,13 +46,14 @@
 
 ## 功能
 
-- **关注核心**: 自由订阅你常用的应用
+- **个性化订阅**: 自由选择并订阅你常用的应用通知
 - **气泡化通知**: 为新通知生成系统级常驻消息气泡, 不错过任何重要信息
 - **智能堆叠与展开**: 智能合并同应用的连续通知; 默认精简显示, 点击即可展开查看完整长文本和原生快捷操作
-- **无缝快捷处理**: 完美继承并提取原生通知的快捷操作(如标记已读, 内联回复), 直接在气泡面板内快速处理
-- **一键直达聊天**: 点击气泡面板的卡片外部区域, 瞬间自动跳转至应用内对应的聊天界面
-- **集中控制台**: 在统一的气泡控制台中高效管理所有未读消息
+- **快捷操作**: 继承并提取原生通知的快捷操作 (如标记已读, 回复), 直接在气泡面板内快速处理
+- **支持跳转**: 点击气泡面板的卡片或气泡通知, 即可跳转至对应的应用页面
+- **集中控制台**: 在统一的气泡控制台中管理所有未读消息
 - **防打扰体验**: 随时移除气泡以保持专注
+- **全屏播放支持友好**: 与原生气泡一致的全屏播放默认隐藏, 可伴随通知或手动滑动屏幕边缘显示
 
 ## 从 Google Play 安装
 

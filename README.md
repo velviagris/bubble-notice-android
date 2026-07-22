@@ -14,6 +14,7 @@
   <a href="https://github.com/GraceThings/bubble-notice-android/releases/latest">
     <img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">
   </a>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/github/downloads/GraceThings/bubble-notice-android/total" alt="Downloads"/>
@@ -45,13 +46,14 @@ A lightweight bubble notice tool, providing more intuitive notifications for the
 
 ## Features
 
-- **Stay Focused**: Subscribe to your favorite or frequently used apps
+- **Personalized Subscription**: Freely choose and subscribe to your frequently used app notifications
 - **Bubble Notifications**: Generate persistent system-level message bubbles for incoming notifications so you never miss important updates
-- **Smart Stacking & Expansion**: Intelligently merge consecutive notifications from the same app. Defaults to a compact view, and expands to reveal the full text and native shortcut actions upon tapping
-- **Quick Reply & Actions**: Seamlessly inherit native notification quick actions (like Mark as Read or Inline Reply) and handle them directly within the bubble console
-- **One-Tap Jump**: Tap the header or background of an unread card to instantly jump directly to the specific chat page within the app
-- **Centralized Dashboard**: Aggregate and manage all your unread messages efficiently in a unified bubble console
+- **Smart Stacking & Expansion**: Intelligently merge consecutive notifications from the same app; defaults to a compact view, and expands to reveal the full text and native shortcut actions upon tapping
+- **Quick Actions**: Inherit and extract native notification quick actions (like Mark as Read, Reply) to handle them directly within the bubble panel
+- **Supports Jumping**: Tap the bubble panel card or bubble notification to jump directly to the corresponding app page
+- **Centralized Console**: Manage all your unread messages efficiently in a unified bubble console
 - **Distraction-Free**: Easily dismiss bubbles anytime to maintain focus
+- **Fullscreen Friendly**: Hides by default during fullscreen playback just like native bubbles, and can be shown alongside notifications or by manually swiping from the screen edge
 
 ## Install from Google Play
 
