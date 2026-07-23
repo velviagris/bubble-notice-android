@@ -104,28 +104,86 @@ object AppUtils {
         apps.distinctBy { it.packageName + "_" + it.isWorkProfile }.sortedBy { it.name }
     }
 
-    // 按包名获取应用名�?/ Get app name by package name.
+    // 按包名获取应用名?/ Get app name by package name.
     fun getAppName(context: Context, packageName: String): String {
-        val pm = context.packageManager
-        val realPkg = packageName.substringBefore(":")
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+        val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+        
+        val parts = packageName.split(":")
+        val realPkg = parts[0]
+        val isWork = if (parts.size > 1) parts[1] == "1" else false
+        
+        val targetProfile = userManager.userProfiles.firstOrNull { profile ->
+            val profileIsWork = profile != android.os.Process.myUserHandle()
+            profileIsWork == isWork
+        } ?: android.os.Process.myUserHandle()
+        
         return try {
-            val info = pm.getApplicationInfo(realPkg, 0)
-            pm.getApplicationLabel(info).toString()
+            val activities = launcherApps.getActivityList(realPkg, targetProfile)
+            if (activities.isNotEmpty()) {
+                activities[0].label.toString()
+            } else {
+                val info = launcherApps.getApplicationInfo(realPkg, 0, targetProfile)
+                context.packageManager.getApplicationLabel(info).toString()
+            }
         } catch (e: Exception) {
-            packageName
+            realPkg
         }
     }
 
-    // 按包名获取应用图�?Bitmap / Get app icon bitmap by package name.
+    // 按包名获取应用图?Bitmap / Get app icon bitmap by package name.
     fun getAppIconBitmap(context: Context, packageName: String): android.graphics.Bitmap? {
-        val pm = context.packageManager
-        val realPkg = packageName.substringBefore(":")
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+        val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+        val density = context.resources.displayMetrics.densityDpi
+        
+        val parts = packageName.split(":")
+        val realPkg = parts[0]
+        val isWork = if (parts.size > 1) parts[1] == "1" else false
+        
+        val targetProfile = userManager.userProfiles.firstOrNull { profile ->
+            val profileIsWork = profile != android.os.Process.myUserHandle()
+            profileIsWork == isWork
+        } ?: android.os.Process.myUserHandle()
+
         return try {
-            val drawable = pm.getApplicationIcon(realPkg)
-            drawable.toBitmap(150, 150)
+            val activities = launcherApps.getActivityList(realPkg, targetProfile)
+            if (activities.isNotEmpty()) {
+                activities[0].getBadgedIcon(density).toBitmap(150, 150)
+            } else {
+                val info = launcherApps.getApplicationInfo(realPkg, 0, targetProfile)
+                val drawable = context.packageManager.getApplicationIcon(info)
+                drawable.toBitmap(150, 150)
+            }
         } catch (e: Exception) {
             null
         }
+    }
+    
+    // 启动指定应用 / Launch specific app.
+    fun launchApp(context: Context, identifier: String): Boolean {
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+        val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+        
+        val parts = identifier.split(":")
+        val pkg = parts[0]
+        val isWork = if (parts.size > 1) parts[1] == "1" else false
+        
+        val targetProfile = userManager.userProfiles.firstOrNull { profile ->
+            val profileIsWork = profile != android.os.Process.myUserHandle()
+            profileIsWork == isWork
+        } ?: android.os.Process.myUserHandle()
+        
+        try {
+            val activities = launcherApps.getActivityList(pkg, targetProfile)
+            if (activities.isNotEmpty()) {
+                launcherApps.startMainActivity(activities[0].componentName, targetProfile, null, null)
+                return true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
     }
 
     fun setPendingAutoJump(intent: android.app.PendingIntent?) {

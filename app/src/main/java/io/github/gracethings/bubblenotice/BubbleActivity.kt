@@ -253,11 +253,22 @@ class BubbleActivity : ComponentActivity() {
 
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
+        
+        if (intent.action == "io.github.gracethings.bubblenotice.ACTION_LAUNCH_APP") {
+            val pkg = intent.getStringExtra("EXTRA_PACKAGE_NAME")
+            if (pkg != null) {
+                AppUtils.launchApp(this, pkg)
+                finish()
+                return
+            }
+        }
+        
         val pkg = intent.getStringExtra("EXTRA_PACKAGE_NAME")
         val title = intent.getStringExtra("EXTRA_TITLE")
         val text = intent.getStringExtra("EXTRA_TEXT")
         if (pkg != null && title != null && text != null) {
-            UnreadMessageManager.addMessage(pkg, title, text, System.currentTimeMillis())
+            val msgTime = intent.getLongExtra("EXTRA_TIME", System.currentTimeMillis())
+            UnreadMessageManager.addMessage(pkg, title, text, msgTime)
         }
     }
 
@@ -425,11 +436,7 @@ class BubbleActivity : ComponentActivity() {
                         if (pendingIntent != null) {
                             AppUtils.sendPendingIntentAllowed(context, pendingIntent)
                         } else {
-                            val launchIntent = context.packageManager.getLaunchIntentForPackage(group.packageName)
-                            if (launchIntent != null) {
-                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(launchIntent)
-                            }
+                            AppUtils.launchApp(context, group.packageName)
                         }
                         UnreadMessageManager.clearMessagesForSender(group.packageName, group.senderName)
                         coroutineScope.launch {
@@ -833,12 +840,8 @@ class BubbleActivity : ComponentActivity() {
                 .clip(RoundedCornerShape(16.dp))
                 .combinedClickable(
                     onClick = {
-                        val launchIntent = context.packageManager.getLaunchIntentForPackage(app.packageName)
-                        if (launchIntent != null) {
-                            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(launchIntent)
-                            (context as? android.app.Activity)?.moveTaskToBack(true)
-                        }
+                        AppUtils.launchApp(context, app.id)
+                        (context as? android.app.Activity)?.moveTaskToBack(true)
                     },
                     onLongClick = {
                         val newSelection = pinnedPackages.toMutableSet()
